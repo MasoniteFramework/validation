@@ -6,7 +6,7 @@ import pendulum
 from masonite.app import App
 from masonite.drivers import SessionCookieDriver
 from masonite.managers import SessionManager
-from masonite.providers import ValidationProvider
+from src.collective.validation.providers import ValidationProvider
 from masonite.testsuite import generate_wsgi
 
 from src.collective.validation import RuleEnclosure

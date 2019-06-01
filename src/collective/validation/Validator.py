@@ -1,5 +1,5 @@
 
-from src.collective.validation.RuleEnclosure import RuleEnclosure
+from .RuleEnclosure import RuleEnclosure
 from collective.dot import Dot as DictDot
 import inspect
 import re
