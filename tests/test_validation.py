@@ -763,7 +763,7 @@ class TestValidationProvider(unittest.TestCase):
         )
 
         request.session = SessionManager(self.app).driver('cookie')
-
+        request.key('UKLAdrye6pZG4psVRPZytukJo2-A_Zxbo0VaqR5oig8=')
         self.assertEqual(request.redirect(
             '/login').with_errors(errors).redirect_url, '/login')
         self.assertEqual(request.redirect(
