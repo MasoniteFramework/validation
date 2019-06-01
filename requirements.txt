@@ -1,0 +1,2 @@
+masonite==2.2.b3
+pytest
