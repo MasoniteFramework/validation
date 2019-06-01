@@ -8,7 +8,9 @@ setup(
     ],
     package_dir = {'': 'src'},
     version='0.0.1',
-    install_requires=[],
+    install_requires=[
+        'masonite-dot'
+    ],
     description="Validation Package",
     author="Joseph Mancuso",
     author_email='joe@masoniteproject.com',
