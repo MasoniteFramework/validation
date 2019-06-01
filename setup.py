@@ -1,8 +1,11 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="masonite-validation",
-    packages=find_packages(),
+    name="collective-validation",
+    packages=[
+        'collective.validation',
+    ],
+    package_dir = {'': 'src'},
     version='0.0.1',
     install_requires=[],
     description="Validation Package",
@@ -10,7 +13,7 @@ setup(
     author_email='joe@masoniteproject.com',
     url='https://github.com/MasoniteFramework/masonite',
     keywords=['masonite', 'python web framework', 'python3'],
-    licence='MIT',
+    license='MIT',
     classifiers=[
         # How mature is this project? Common values are
         #   3 - Alpha

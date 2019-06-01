@@ -1,5 +1,6 @@
-from masonite.helpers import Dot as DictDot
-from .RuleEnclosure import RuleEnclosure
+
+from src.collective.validation.RuleEnclosure import RuleEnclosure
+from collective.dot import Dot as DictDot
 import inspect
 import re
 
