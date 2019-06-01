@@ -6,17 +6,17 @@ import pendulum
 from masonite.app import App
 from masonite.drivers import SessionCookieDriver
 from masonite.managers import SessionManager
-from src.collective.validation.providers import ValidationProvider
+from src.masonite.validation.providers import ValidationProvider
 from masonite.testsuite import generate_wsgi
 
-from src.collective.validation import RuleEnclosure
-from src.collective.validation.Validator import (ValidationFactory, Validator, accepted,
+from src.masonite.validation import RuleEnclosure
+from src.masonite.validation.Validator import (ValidationFactory, Validator, accepted,
                                   active_domain, after_today, before_today,
                                   contains, date, email, equals, exists,
                                   greater_than, in_range, ip, is_future, is_in,
                                   is_past, isnt)
-from src.collective.validation.Validator import json as vjson
-from src.collective.validation.Validator import (length, less_than, none, numeric, phone,
+from src.masonite.validation.Validator import json as vjson
+from src.masonite.validation.Validator import (length, less_than, none, numeric, phone,
                                   required, string, timezone, truthy, when)
 
 

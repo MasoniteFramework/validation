@@ -1,6 +1,6 @@
 
 from .RuleEnclosure import RuleEnclosure
-from collective.dot import Dot as DictDot
+from masonite.dot import Dot as DictDot
 import inspect
 import re
 

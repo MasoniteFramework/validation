@@ -1,9 +1,10 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="collective-validation",
+    name="masonite-validation",
     packages=[
-        'collective.validation',
+        'masonite.validation',
+        'masonite.validation.providers',
     ],
     package_dir = {'': 'src'},
     version='0.0.1',
