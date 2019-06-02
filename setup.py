@@ -7,7 +7,8 @@ setup(
         'masonite.validation.providers',
     ],
     package_dir = {'': 'src'},
-    version='0.0.1',
+    include_package_data=True,
+    version='0.0.2',
     install_requires=[
         'masonite-dot'
     ],
