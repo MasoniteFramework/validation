@@ -9,7 +9,7 @@ setup(
     ],
     package_dir = {'': 'src'},
     include_package_data=True,
-    version='0.0.3',
+    version='2.2.1',
     install_requires=[
         'masonite-dot'
     ],
