@@ -5,7 +5,7 @@ from masonite.commands import BaseScaffoldCommand
 
 class RuleEnclosureCommand(BaseScaffoldCommand):
     """
-    Creates a new Rule.
+    Creates a new rule enclosure.
 
     rule:enclosure
         {name : Name of the rule enclosure}
