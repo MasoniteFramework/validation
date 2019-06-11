@@ -6,18 +6,21 @@ import pendulum
 from masonite.app import App
 from masonite.drivers import SessionCookieDriver
 from masonite.managers import SessionManager
-from src.masonite.validation.providers import ValidationProvider
 from masonite.testsuite import generate_wsgi
 
 from src.masonite.validation import RuleEnclosure
-from src.masonite.validation.Validator import (ValidationFactory, Validator, accepted,
-                                  active_domain, after_today, before_today,
-                                  contains, date, email, equals, exists,
-                                  greater_than, in_range, ip, is_future, is_in,
-                                  is_past, isnt)
+from src.masonite.validation.providers import ValidationProvider
+from src.masonite.validation.Validator import (ValidationFactory, Validator,
+                                               accepted, active_domain,
+                                               after_today, before_today,
+                                               contains, date, email, equals,
+                                               exists, greater_than, in_range,
+                                               ip, is_future, is_in, is_past,
+                                               isnt)
 from src.masonite.validation.Validator import json as vjson
-from src.masonite.validation.Validator import (length, less_than, none, numeric, phone,
-                                  required, string, timezone, truthy, when)
+from src.masonite.validation.Validator import (length, less_than, matches,
+                                               none, numeric, phone, required,
+                                               string, timezone, truthy, when)
 
 
 class TestValidation(unittest.TestCase):
@@ -62,6 +65,22 @@ class TestValidation(unittest.TestCase):
 
         self.assertEqual(
             validate, {'email': ['email must be a valid email address']})
+
+    def test_matches(self):
+        validate = Validator().validate({
+            'password': 'secret',
+            'confirm': 'secret',
+        }, matches('password', 'confirm'))
+
+        self.assertEqual(len(validate), 0)
+
+        validate = Validator().validate({
+            'password': 'secret',
+            'confirm': 'no-secret',
+        }, matches('password', 'confirm'))
+
+        self.assertEqual(
+            validate, {'password': ['password must match confirm']})
 
     def test_active_domain(self):
         validate = Validator().validate({

@@ -264,6 +264,20 @@ class email(BaseValidation):
     def negated_message(self, attribute):
         return '{} must not be a valid email address'.format(attribute)
 
+class matches(BaseValidation):
+    def __init__(self, validations, match, messages={}, raises={}):
+        super().__init__(validations, messages=messages, raises=raises)
+        self.match = match
+
+    def passes(self, attribute, key, dictionary):
+        return attribute == dictionary[self.match]
+
+    def message(self, attribute):
+        return '{} must match {}'.format(attribute, self.match)
+
+    def negated_message(self, attribute):
+        return '{} must not match {}'.format(attribute, self.match)
+
 
 class exists(BaseValidation):
 
@@ -634,6 +648,7 @@ class ValidationFactory:
             json,
             length,
             less_than,
+            matches,
             none,
             numeric,
             phone,
