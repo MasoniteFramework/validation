@@ -13,14 +13,15 @@ from src.masonite.validation.providers import ValidationProvider
 from src.masonite.validation.Validator import (ValidationFactory, Validator,
                                                accepted, active_domain,
                                                after_today, before_today,
-                                               contains, date, email, equals,
-                                               exists, greater_than, in_range,
-                                               ip, is_future, is_in, is_past,
-                                               isnt)
+                                               contains, date, does_not, email,
+                                               equals, exists, greater_than,
+                                               in_range, ip, is_future, is_in,
+                                               is_past, isnt)
 from src.masonite.validation.Validator import json as vjson
 from src.masonite.validation.Validator import (length, less_than, matches,
-                                               none, numeric, phone, required,
-                                               string, timezone, truthy, when)
+                                               none, numeric, one_of, phone,
+                                               required, string, timezone,
+                                               truthy, when)
 
 
 class TestValidation(unittest.TestCase):
@@ -530,6 +531,114 @@ class TestValidation(unittest.TestCase):
         self.assertEqual(
             validate, {'test': ['test must contain an element in [4, 2, 3]']})
 
+    def test_when(self):
+        validate = Validator().validate({
+            'email': 'user@example.com',
+            'phone': '123-456-7890'
+        }, when(
+            isnt(
+                required('email')
+            )
+        ).then(
+            required('phone')
+        ))
+
+        self.assertEqual(len(validate), 0)
+
+        validate = Validator().validate({
+            'email': 'user@example.com'
+        }, when(
+            exists('email')
+        ).then(
+            required('phone')
+        ))
+
+        self.assertEqual(validate['phone'], ['phone is required'])
+
+        validate = Validator().validate({
+            'user': 'user'
+        }, when(
+            exists('email')
+        ).then(
+            required('phone')
+        ))
+
+        self.assertEqual(len(validate), 0)
+
+        validate = Validator().validate({
+            'email': 'user@example.com',
+        }, when(
+            does_not(
+                exists('email')
+            )
+        ).then(
+            required('phone')
+        ))
+        
+        self.assertEqual(len(validate), 0)
+
+    def test_does_not(self):
+        validate = Validator().validate({
+            'phone': '123-456-7890'
+        }, does_not(
+            exists('email')
+        ).then(
+            required('phone')
+        ))
+
+        self.assertEqual(len(validate), 0)
+
+        validate = Validator().validate({
+            'email': 'user@example.com',
+            'phone': '123-456-7890'
+        }, does_not(
+            exists('email')
+        ).then(
+            required('phone')
+        ))
+
+        self.assertEqual(len(validate), 0)
+
+        validate = Validator().validate({
+            'user': 'Joe'
+        }, does_not(
+            exists('email')
+        ).then(
+            required('phone')
+        ))
+
+        self.assertEqual(validate['phone'], ['phone is required'])
+
+    def test_one_of(self):
+        validate = Validator().validate({
+            'email': 'user@example.com',
+            'phone': '123-456-7890'
+        }, one_of(['email', 'phone']))
+
+        self.assertEqual(len(validate), 0)
+
+        validate = Validator().validate({
+            'accepted': 'on',
+            'user': 'Joe'
+        }, one_of(['email', 'phone']))
+
+        self.assertEqual(validate['email'], ['email or phone is required'])
+        self.assertEqual(validate['phone'], ['email or phone is required'])
+
+        validate = Validator().validate({
+            'accepted': 'on',
+            'user': 'Joe'
+        }, one_of(['email', 'phone', 'password']))
+
+        self.assertEqual(validate['email'], ['email, phone, password is required'])
+
+        validate = Validator().validate({
+            'accepted': 'on',
+            'user': 'Joe'
+        }, one_of(['email', 'phone', 'password', 'user']))
+
+        self.assertEqual(len(validate), 0)
+
 
 class TestDotNotationValidation(unittest.TestCase):
 
@@ -742,7 +851,6 @@ class TestValidationProvider(unittest.TestCase):
     def test_request_validation(self):
         request = self.app.make('Request')
         validate = self.app.make('Validator')
-        print('validate is', validate)
 
         request.request_variables = {
             'id': 1,
@@ -806,3 +914,10 @@ class TestRuleEnclosure(unittest.TestCase):
         }, MockRuleEnclosure)
 
         self.assertEqual(len(validate), 0)
+
+        validate = Validator().validate({
+            'email': 'user@example.com',
+            'terms': 'on'
+        }, MockRuleEnclosure)
+
+        self.assertEqual(len(validate), 1)

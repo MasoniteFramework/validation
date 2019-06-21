@@ -68,7 +68,6 @@ class BaseValidation:
 
         return boolean
 
-
 class required(BaseValidation):
 
     def passes(self, attribute, key, dictionary):
@@ -124,6 +123,31 @@ class timezone(BaseValidation):
 
     def negated_message(self, attribute):
         return '{} must not be a valid timezone'.format(attribute)
+
+class one_of(BaseValidation):
+
+    def passes(self, attribute, key, dictionary):
+        for validation in self.validations:
+            if validation in dictionary:
+                return True
+        
+        return False
+
+    def message(self, attribute):
+        if len(self.validations) > 2:
+            text = ', '.join(self.validations)
+        else:
+            text = ' or '.join(self.validations)
+
+        return '{} is required'.format(text)
+
+    def negated_message(self, attribute):
+        if len(self.validations) > 2:
+            text = ','.join(self.validations)
+        else:
+            text = ' or '.join(self.validations)
+            
+        return '{} is not required'.format(text)
 
 
 class accepted(BaseValidation):
@@ -480,6 +504,29 @@ class isnt(BaseValidation):
             rule.negate().handle(dictionary)
             self.errors.update(rule.errors)
 
+class does_not(BaseValidation):
+
+    def __init__(self, *rules, messages={}, raises={}):
+        super().__init__(rules)
+        self.should_run_then = True
+
+    def handle(self, dictionary):
+        self.dictionary = dictionary
+        errors = False
+        for rule in self.validations:
+            if rule.handle(dictionary):
+                errors = True
+
+        if not errors:
+            for rule in self.then_rules:
+                if not rule.handle(dictionary):
+                    self.errors.update(rule.errors)
+        
+
+    def then(self, *rules):
+        self.then_rules = rules
+        return self
+
 
 class when(BaseValidation):
 
@@ -489,11 +536,12 @@ class when(BaseValidation):
 
     def handle(self, dictionary):
         self.dictionary = dictionary
+        errors = False
         for rule in self.validations:
-            if not rule.handle(dictionary):
-                self.errors.update(rule.errors)
-
-        if not self.errors:
+            if rule.handle(dictionary):
+                errors = True
+    
+        if errors:
             for rule in self.then_rules:
                 if not rule.handle(dictionary):
                     self.errors.update(rule.errors)
@@ -599,6 +647,7 @@ class Validator:
     def run_enclosure(self, enclosure, dictionary):
         rule_errors = {}
         for rule in enclosure.rules():
+            rule.handle(dictionary)
             for error, message in rule.errors.items():
                 if error not in rule_errors:
                     rule_errors.update({error: message})
