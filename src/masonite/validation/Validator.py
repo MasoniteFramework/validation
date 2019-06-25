@@ -143,7 +143,7 @@ class one_of(BaseValidation):
 
     def negated_message(self, attribute):
         if len(self.validations) > 2:
-            text = ','.join(self.validations)
+            text = ', '.join(self.validations)
         else:
             text = ' or '.join(self.validations)
             
@@ -684,6 +684,7 @@ class ValidationFactory:
             before_today,
             contains,
             date,
+            does_not,
             equals,
             email,
             exists,
@@ -700,6 +701,7 @@ class ValidationFactory:
             matches,
             none,
             numeric,
+            one_of,
             phone,
             required,
             string,
