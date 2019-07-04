@@ -797,6 +797,45 @@ class TestDotNotationValidation(unittest.TestCase):
         self.assertEqual(
             validate, {'user.age': ['user.age must be equal to test1']})
 
+    def test_can_use_asterisk(self):
+        validate = Validator().validate({
+            'user': {
+                'id': 1,
+                'addresses': [
+                    {'id': 1, 'street': 'A Street'},
+                    {'id': 2, 'street': 'B Street'},
+                    {'id': 3, 'street': 'C Street'},
+                ],
+                'age': 25
+            }
+        }, required(['user.addresses.*.id']), equals('user.addresses.*.id', [1,2,3]))
+
+        self.assertEqual(len(validate), 0)
+
+        validate = Validator().validate({
+            'user': {
+                'id': 1,
+                'addresses': [
+                    {'id': 1, 'street': 'A Street'},
+                    {'id': 2, 'street': 'B Street'},
+                    {'id': 3, 'street': 'C Street'},
+                ],
+                'age': 25
+            }
+        }, required(['user.addresses.*.house']))
+
+        self.assertEqual(validate, {'user.addresses.*.house': ['user.addresses.*.house is required']})
+        
+        validate = Validator().validate({
+            'user': {
+                'id': 1,
+                'addresses': [],
+                'age': 25
+            }
+        }, required(['user.addresses.*.id']))
+
+        self.assertEqual(validate, {'user.addresses.*.id': ['user.addresses.*.id is required']})
+
     def test_dot_error_message_required(self):
         validate = Validator().validate({
             'user': {
