@@ -8,7 +8,6 @@ jobs:
       - run: pip install -e . --user
       - run: pip install -r requirements.txt --user
       - run: python -m pytest
-  build:
     docker:
       - image: circleci/python:3.5  # primary container for the build job
     steps:
