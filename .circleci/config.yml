@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     machine:
-      steps:
+      - steps:
         - checkout
         - run: echo "hi"
 workflows:
