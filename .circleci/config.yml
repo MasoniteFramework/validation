@@ -1,13 +1,10 @@
 version: 2
 jobs:
   build:
-    steps:
-      - checkout
-      - run: echo "hi"
-  test:
-    steps:
-      - checkout
-      - run: echo "yo"
+    machine:
+      steps:
+        - checkout
+        - run: echo "hi"
 workflows:
   version: 2
   build_and_test:
