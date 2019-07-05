@@ -7,10 +7,10 @@ jobs:
       - checkout
       - run:
         name: "Install"
-        command: 
-          - pip install -e .
-          - pip install -r requirements.txt
-          - python -m pytest
+        command: |
+          pip install -e .
+          pip install -r requirements.txt
+          python -m pytest
 
 workflows:
   version: 2
