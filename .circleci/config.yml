@@ -1,17 +1,16 @@
 version: 2
 jobs:
-  Builds:
-    build:
-      steps:
-        - checkout
-        - run: echo "A first hello"
-    build:
-      steps:
-        - checkout
-        - run: echo "A first hello"    
-
+  build:
+    steps:
+      - checkout
+      - run: echo "hi"
+  test:
+    steps:
+      - checkout
+      - run: echo "yo"
 workflows:
   version: 2
-  Builds:
+  build_and_test:
     jobs:
-      - Builds
+      - build
+      - test
