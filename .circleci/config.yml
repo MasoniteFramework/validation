@@ -5,10 +5,12 @@ jobs:
       - image: circleci/python:3.6.4  # primary container for the build job
     steps:
       - checkout
-      - run: 
-        - pip install -e .
-        - pip install -r requirements.txt
-        - python -m pytest
+      - run:
+        name: "Install"
+        command: 
+          - pip install -e .
+          - pip install -r requirements.txt
+          - python -m pytest
 
 workflows:
   version: 2
