@@ -50,7 +50,4 @@ workflows:
       - python3.7
       - Masonite Core:
           requires:
-              - python3.4
-              - python3.5
-              - python3.6
-              - python3.7
+              - build
