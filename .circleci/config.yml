@@ -48,5 +48,5 @@ workflows:
       - python3.6
       - python3.7
       - trigger_core:
-        requires:
-          - python3.6
+          requires:
+              - python3.6
