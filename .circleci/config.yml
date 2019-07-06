@@ -36,7 +36,7 @@ jobs:
     docker:
       - image: circleci/python:3.7  # primary container for the build job
     steps:
-      - run: https://circleci.com/api/v1/project/masoniteframework/validation/tree/circle-ci?circle-token=$CIRCLE_TOKEN
+      - run: curl POST https://circleci.com/api/v1/project/masoniteframework/validation/tree/circle-ci?circle-token=$CIRCLE_TOKEN
 
 
 workflows:
