@@ -33,6 +33,11 @@ jobs:
           - run: pip install -e . --user
           - run: pip install -r requirements.txt --user
           - run: python -m pytest
+      trigger_core:
+        docker:
+          - image: circleci/python:3.6  # primary container for the build job
+        steps:
+          - run: python trigger.py
 
 
 workflows:
