@@ -36,7 +36,7 @@ jobs:
     docker:
       - image: circleci/python:3.7  # primary container for the build job
     steps:
-      - run: curl POST https://circleci.com/api/v1/project/masoniteframework/validation/tree/master?circle-token=$CIRCLE_TOKEN
+      - run: curl -X POST https://circleci.com/api/v1/project/masoniteframework/validation/tree/master?circle-token=$CIRCLE_TOKEN
 
 
 workflows:
@@ -49,4 +49,7 @@ workflows:
       - python3.7
       - trigger_core:
           requires:
+              - python3.4
+              - python3.5
               - python3.6
+              - python3.7
