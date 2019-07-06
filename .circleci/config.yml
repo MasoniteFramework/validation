@@ -32,6 +32,12 @@ jobs:
       - run: pip install -e . --user
       - run: pip install -r requirements.txt --user
       - run: python -m pytest
+  trigger_core:
+    docker:
+      - image: circleci/python:3.7  # primary container for the build job
+    steps:
+      - run: https://circleci.com/api/v1/project/masoniteframework/validation/tree/circle-ci?circle-token=$CIRCLE_TOKEN
+
 
 workflows:
   version: 2
@@ -41,3 +47,6 @@ workflows:
       - python3.5
       - python3.6
       - python3.7
+      - trigger_core
+        requires:
+          - python3.6
