@@ -16,7 +16,7 @@ jobs:
         - run: pip install -e . --user
         - run: pip install -r requirements.txt --user
         - run: python -m pytest
-    python3.6:
+    build:
       docker:
         - image: circleci/python:3.6  # primary container for the build job
       steps:
@@ -46,7 +46,7 @@ workflows:
     jobs: 
       - python3.4
       - python3.5
-      - python3.6
+      - build
       - python3.7
       - Masonite Core:
           requires:
