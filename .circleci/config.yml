@@ -32,7 +32,7 @@ jobs:
         - run: pip install -e . --user
         - run: pip install -r requirements.txt --user
         - run: python -m pytest
-    trigger_core:
+    Masonite Core:
       docker:
         - image: circleci/python:3.6  # primary container for the build job
       steps:
@@ -48,7 +48,7 @@ workflows:
       - python3.5
       - python3.6
       - python3.7
-      - trigger_core:
+      - Masonite Core:
           requires:
               - python3.4
               - python3.5
