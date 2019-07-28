@@ -95,7 +95,7 @@ class required(BaseValidation):
         Returns:
             string
         """
-        return '{} is required'.format(key)
+        return 'The {} field is required.'.format(key)
 
     def negated_message(self, key):
         """A message to show when this rule is negated using a negation rule like 'isnt()'
@@ -109,7 +109,7 @@ class required(BaseValidation):
         Returns:
             string
         """
-        return '{} is not required'.format(key)
+        return 'The {} field is not required.'.format(key)
 
 
 class timezone(BaseValidation):
@@ -119,10 +119,10 @@ class timezone(BaseValidation):
         return attribute in pytz.all_timezones
 
     def message(self, attribute):
-        return '{} must be a valid timezone'.format(attribute)
+        return 'The {} must be a valid timezone.'.format(attribute)
 
     def negated_message(self, attribute):
-        return '{} must not be a valid timezone'.format(attribute)
+        return 'The {} must not be a valid timezone.'.format(attribute)
 
 class one_of(BaseValidation):
 
@@ -130,7 +130,7 @@ class one_of(BaseValidation):
         for validation in self.validations:
             if validation in dictionary:
                 return True
-        
+
         return False
 
     def message(self, attribute):
@@ -139,15 +139,15 @@ class one_of(BaseValidation):
         else:
             text = ' or '.join(self.validations)
 
-        return '{} is required'.format(text)
+        return 'The {} is required.'.format(text)
 
     def negated_message(self, attribute):
         if len(self.validations) > 2:
             text = ', '.join(self.validations)
         else:
             text = ' or '.join(self.validations)
-            
-        return '{} is not required'.format(text)
+
+        return 'The {} is not required.'.format(text)
 
 
 class accepted(BaseValidation):
@@ -156,10 +156,10 @@ class accepted(BaseValidation):
         return attribute is True or attribute == 'on' or attribute == 'yes' or attribute == '1' or attribute == 1
 
     def message(self, attribute):
-        return '{} must be yes, on, 1 or true'.format(attribute)
+        return 'The {} must be accepted.'.format(attribute)
 
     def negated_message(self, attribute):
-        return '{} must not be yes, on, 1 or true'.format(attribute)
+        return 'The {} must not be accepted.'.format(attribute)
 
 
 class ip(BaseValidation):
@@ -174,10 +174,10 @@ class ip(BaseValidation):
             return False
 
     def message(self, attribute):
-        return '{} must be a valid ipv4 address'.format(attribute)
+        return 'The {} must be a valid ipv4 address.'.format(attribute)
 
     def negated_message(self, attribute):
-        return '{} must not be a valid ipv4 address'.format(attribute)
+        return 'The {} must not be a valid ipv4 address.'.format(attribute)
 
 
 class date(BaseValidation):
@@ -191,10 +191,10 @@ class date(BaseValidation):
             return False
 
     def message(self, attribute):
-        return '{} must be a valid date'.format(attribute)
+        return 'The {} must be a valid date.'.format(attribute)
 
     def negated_message(self, attribute):
-        return '{} must not be a valid date'.format(attribute)
+        return 'The {} must not be a valid date.'.format(attribute)
 
 
 class before_today(BaseValidation):
@@ -211,10 +211,10 @@ class before_today(BaseValidation):
             return False
 
     def message(self, attribute):
-        return '{} must be a date before today'.format(attribute)
+        return 'The {} must be a date before today.'.format(attribute)
 
     def negated_message(self, attribute):
-        return '{} must not be a date before today'.format(attribute)
+        return 'The {} must not be a date before today.'.format(attribute)
 
 
 class after_today(BaseValidation):
@@ -231,10 +231,10 @@ class after_today(BaseValidation):
             return False
 
     def message(self, attribute):
-        return '{} must be a date after today'.format(attribute)
+        return 'The {} must be a date after today.'.format(attribute)
 
     def negated_message(self, attribute):
-        return '{} must not be a date after today'.format(attribute)
+        return 'The {} must not be a date after today.'.format(attribute)
 
 
 class is_past(BaseValidation):
@@ -251,10 +251,10 @@ class is_past(BaseValidation):
             return False
 
     def message(self, attribute):
-        return '{} must be a time in the past'.format(attribute)
+        return 'The {} must be a time in the past.'.format(attribute)
 
     def negated_message(self, attribute):
-        return '{} must not be a time in the past'.format(attribute)
+        return 'The {} must not be a time in the past.'.format(attribute)
 
 
 class is_future(BaseValidation):
@@ -271,10 +271,10 @@ class is_future(BaseValidation):
             return False
 
     def message(self, attribute):
-        return '{} must be a time in the past'.format(attribute)
+        return 'The {} must be a time in the past.'.format(attribute)
 
     def negated_message(self, attribute):
-        return '{} must not be a time in the past'.format(attribute)
+        return 'The {} must not be a time in the past.'.format(attribute)
 
 
 class email(BaseValidation):
@@ -283,10 +283,10 @@ class email(BaseValidation):
         return re.compile(r"^[^.].+@([?)[a-zA-Z0-9-.])+.([a-zA-Z]{2,3}|[0-9]{1,3})(]?)$").match(attribute)
 
     def message(self, attribute):
-        return '{} must be a valid email address'.format(attribute)
+        return 'The {} must be a valid email address.'.format(attribute)
 
     def negated_message(self, attribute):
-        return '{} must not be a valid email address'.format(attribute)
+        return 'The {} must not be a valid email address.'.format(attribute)
 
 class matches(BaseValidation):
     def __init__(self, validations, match, messages={}, raises={}):
@@ -297,10 +297,10 @@ class matches(BaseValidation):
         return attribute == dictionary[self.match]
 
     def message(self, attribute):
-        return '{} must match {}'.format(attribute, self.match)
+        return 'The {} must match {}.'.format(attribute, self.match)
 
     def negated_message(self, attribute):
-        return '{} must not match {}'.format(attribute, self.match)
+        return 'The {} must not match {}.'.format(attribute, self.match)
 
 
 class exists(BaseValidation):
@@ -309,10 +309,10 @@ class exists(BaseValidation):
         return key in dictionary
 
     def message(self, attribute):
-        return '{} must exist'.format(attribute)
+        return 'The {} must exist.'.format(attribute)
 
     def negated_message(self, attribute):
-        return '{} must not exist'.format(attribute)
+        return 'The {} must not exist.'.format(attribute)
 
 
 class active_domain(BaseValidation):
@@ -334,10 +334,10 @@ class active_domain(BaseValidation):
             return False
 
     def message(self, attribute):
-        return '{} must be an active domain name'.format(attribute)
+        return 'The {} must be an active domain name.'.format(attribute)
 
     def negated_message(self, attribute):
-        return '{} must not be an active domain name'.format(attribute)
+        return 'The {} must not be an active domain name.'.format(attribute)
 
 
 class numeric(BaseValidation):
@@ -346,10 +346,10 @@ class numeric(BaseValidation):
         return str(attribute).isdigit()
 
     def message(self, attribute):
-        return '{} must be a numeric'.format(attribute)
+        return 'The {} must be a numeric.'.format(attribute)
 
     def negated_message(self, attribute):
-        return '{} must not be a numeric'.format(attribute)
+        return 'The {} must not be a numeric.'.format(attribute)
 
 
 class string(BaseValidation):
@@ -358,10 +358,10 @@ class string(BaseValidation):
         return isinstance(attribute, str)
 
     def message(self, attribute):
-        return '{} must be a string'.format(attribute)
+        return 'The {} must be a string.'.format(attribute)
 
     def negated_message(self, attribute):
-        return '{} must not be a string'.format(attribute)
+        return 'The {} must not be a string.'.format(attribute)
 
 
 class none(BaseValidation):
@@ -370,10 +370,10 @@ class none(BaseValidation):
         return attribute is None
 
     def message(self, attribute):
-        return '{} must be None'.format(attribute)
+        return 'The {} must be None.'.format(attribute)
 
     def negated_message(self, attribute):
-        return '{} must not be None'.format(attribute)
+        return 'The {} must not be None.'.format(attribute)
 
 
 class length(BaseValidation):
@@ -391,10 +391,10 @@ class length(BaseValidation):
         return len(str(attribute)) >= self.min and len(str(attribute)) <= self.max
 
     def message(self, attribute):
-        return '{} length must be between {} and {}'.format(attribute, self.min, self.max)
+        return 'The {} length must be between {} and {}.'.format(attribute, self.min, self.max)
 
     def negated_message(self, attribute):
-        return '{} length must not be between {} and {}'.format(attribute, self.min, self.max)
+        return 'The {} length must not be between {} and {}.'.format(attribute, self.min, self.max)
 
 
 class in_range(BaseValidation):
@@ -408,10 +408,10 @@ class in_range(BaseValidation):
         return attribute >= self.min and attribute <= self.max
 
     def message(self, attribute):
-        return '{} must be between {} and {}'.format(attribute, self.min, self.max)
+        return 'The {} must be between {} and {}.'.format(attribute, self.min, self.max)
 
     def negated_message(self, attribute):
-        return '{} must not be between {} and {}'.format(attribute, self.min, self.max)
+        return 'The {} must not be between {} and {}.'.format(attribute, self.min, self.max)
 
 
 class equals(BaseValidation):
@@ -424,10 +424,10 @@ class equals(BaseValidation):
         return attribute == self.value
 
     def message(self, attribute):
-        return '{} must be equal to {}'.format(attribute, self.value)
+        return 'The {} must be equal to {}.'.format(attribute, self.value)
 
     def negated_message(self, attribute):
-        return '{} must not be equal to {}'.format(attribute, self.value)
+        return 'The {} must not be equal to {}.'.format(attribute, self.value)
 
 
 class contains(BaseValidation):
@@ -440,10 +440,10 @@ class contains(BaseValidation):
         return self.value in attribute
 
     def message(self, attribute):
-        return '{} must contain {}'.format(attribute, self.value)
+        return 'The {} must contain {}.'.format(attribute, self.value)
 
     def negated_message(self, attribute):
-        return '{} must not contain {}'.format(attribute, self.value)
+        return 'The {} must not contain {}.'.format(attribute, self.value)
 
 
 class is_in(BaseValidation):
@@ -456,10 +456,10 @@ class is_in(BaseValidation):
         return attribute in self.value
 
     def message(self, attribute):
-        return '{} must contain an element in {}'.format(attribute, self.value)
+        return 'The {} must contain an element in {}.'.format(attribute, self.value)
 
     def negated_message(self, attribute):
-        return '{} must not contain an element in {}'.format(attribute, self.value)
+        return 'The {} must not contain an element in {}.'.format(attribute, self.value)
 
 
 class greater_than(BaseValidation):
@@ -472,10 +472,10 @@ class greater_than(BaseValidation):
         return attribute > self.value
 
     def message(self, attribute):
-        return '{} must be greater than {}'.format(attribute, self.value)
+        return 'The {} must be greater than {}.'.format(attribute, self.value)
 
     def negated_message(self, attribute):
-        return '{} must be greater than {}'.format(attribute, self.value)
+        return 'The {} must be greater than {}.'.format(attribute, self.value)
 
 
 class less_than(BaseValidation):
@@ -488,10 +488,10 @@ class less_than(BaseValidation):
         return attribute < self.value
 
     def message(self, attribute):
-        return '{} must be less than {}'.format(attribute, self.value)
+        return 'The {} must be less than {}.'.format(attribute, self.value)
 
     def negated_message(self, attribute):
-        return '{} must not be less than {}'.format(attribute, self.value)
+        return 'The {} must not be less than {}.'.format(attribute, self.value)
 
 
 class isnt(BaseValidation):
@@ -521,7 +521,7 @@ class does_not(BaseValidation):
             for rule in self.then_rules:
                 if not rule.handle(dictionary):
                     self.errors.update(rule.errors)
-        
+
 
     def then(self, *rules):
         self.then_rules = rules
@@ -540,7 +540,7 @@ class when(BaseValidation):
         for rule in self.validations:
             if rule.handle(dictionary):
                 errors = True
-    
+
         if errors:
             for rule in self.then_rules:
                 if not rule.handle(dictionary):
@@ -557,10 +557,10 @@ class truthy(BaseValidation):
         return attribute
 
     def message(self, attribute):
-        return '{} must be a truthy value'.format(attribute)
+        return 'The {} must be a truthy value.'.format(attribute)
 
     def negated_message(self, attribute):
-        return '{} must not be a truthy value'.format(attribute)
+        return 'The {} must not be a truthy value.'.format(attribute)
 
 
 class json(BaseValidation):
@@ -580,10 +580,10 @@ class json(BaseValidation):
             return False
 
     def message(self, attribute):
-        return '{} must be json'.format(attribute)
+        return 'The {} must be a valid JSON.'.format(attribute)
 
     def negated_message(self, attribute):
-        return '{} must not be json'.format(attribute)
+        return 'The {} must not be a valid JSON.'.format(attribute)
 
 
 class phone(BaseValidation):
@@ -602,15 +602,15 @@ class phone(BaseValidation):
 
     def message(self, attribute):
         if self.pattern == '(123)456-7890':
-            return '{} must be in the format (XXX)XXX-XXXX'.format(attribute)
+            return 'The {} must be in the format (XXX)XXX-XXXX.'.format(attribute)
         elif self.pattern == '123-456-7890':
-            return '{} must be in the format XXX-XXX-XXXX'.format(attribute)
+            return 'The {} must be in the format XXX-XXX-XXXX.'.format(attribute)
 
     def negated_message(self, attribute):
         if self.pattern == '(123)456-7890':
-            return '{} must not be in the format (XXX)XXX-XXXX'.format(attribute)
+            return 'The {} must not be in the format (XXX)XXX-XXXX.'.format(attribute)
         elif self.pattern == '123-456-7890':
-            return '{} must not be in the format XXX-XXX-XXXX'.format(attribute)
+            return 'The {} must not be in the format XXX-XXX-XXXX.'.format(attribute)
 
 
 class Validator:
