@@ -130,7 +130,7 @@ class one_of(BaseValidation):
         for validation in self.validations:
             if validation in dictionary:
                 return True
-        
+
         return False
 
     def message(self, attribute):
@@ -146,7 +146,7 @@ class one_of(BaseValidation):
             text = ', '.join(self.validations)
         else:
             text = ' or '.join(self.validations)
-            
+
         return '{} is not required'.format(text)
 
 
@@ -521,7 +521,7 @@ class does_not(BaseValidation):
             for rule in self.then_rules:
                 if not rule.handle(dictionary):
                     self.errors.update(rule.errors)
-        
+
 
     def then(self, *rules):
         self.then_rules = rules
@@ -540,7 +540,7 @@ class when(BaseValidation):
         for rule in self.validations:
             if rule.handle(dictionary):
                 errors = True
-    
+
         if errors:
             for rule in self.then_rules:
                 if not rule.handle(dictionary):
@@ -613,6 +613,19 @@ class phone(BaseValidation):
             return '{} must not be in the format XXX-XXX-XXXX'.format(attribute)
 
 
+class confirmed(BaseValidation):
+
+    def passes(self, attribute, key, dictionary):
+        if key in dictionary and key + '_confirmation' in dictionary:
+            return dictionary[key] == dictionary['{}'.format(key + '_confirmation')]
+        return False
+
+    def message(self, attribute):
+        return 'The {} confirmation does not match.'.format(attribute)
+
+    def negated_message(self, attribute):
+        return 'The {} confirmation matches.'.format(attribute)
+
 class Validator:
 
     def __init__(self):
@@ -682,6 +695,7 @@ class ValidationFactory:
             active_domain,
             after_today,
             before_today,
+            confirmed,
             contains,
             date,
             does_not,
