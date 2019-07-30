@@ -12,7 +12,7 @@ from src.masonite.validation import RuleEnclosure
 from src.masonite.validation.providers import ValidationProvider
 from src.masonite.validation.Validator import (ValidationFactory, Validator,
                                                accepted, active_domain,
-                                               after_today, before_today,
+                                               after_today, before_today, confirmed,
                                                contains, date, does_not, email,
                                                equals, exists, greater_than,
                                                in_range, ip, is_future, is_in,
@@ -932,6 +932,35 @@ class TestValidationProvider(unittest.TestCase):
             '/login').with_errors(errors).redirect_url, '/login')
         self.assertEqual(request.redirect(
             '/login').with_errors(errors).session.get('errors'), {'user': ['The user field is required.']})
+
+    def test_confirmed(self):
+        validate = Validator().validate({
+            'password': 'secret',
+            'password_confirmation': 'secret',
+        }, confirmed(['password']))
+
+        self.assertEqual(len(validate), 0)
+
+        validate = Validator().validate({
+            'password': 'secret',
+        }, confirmed(['password']))
+
+        self.assertEqual(
+            validate, {'password': ['The password confirmation does not match.']})
+
+        validate = Validator().validate({
+        }, confirmed(['password']))
+
+        self.assertEqual(
+            validate, {'password': ['The password confirmation does not match.']})
+
+        validate = Validator().validate({
+            'password': 'secret',
+            'password_confirmation': 'foo',
+        }, confirmed(['password']))
+
+        self.assertEqual(
+            validate, {'password': ['The password confirmation does not match.']})
 
 
 class MockRuleEnclosure(RuleEnclosure):

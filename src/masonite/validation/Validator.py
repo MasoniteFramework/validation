@@ -613,6 +613,19 @@ class phone(BaseValidation):
             return 'The {} must not be in the format XXX-XXX-XXXX.'.format(attribute)
 
 
+class confirmed(BaseValidation):
+
+    def passes(self, attribute, key, dictionary):
+        if key in dictionary and key + '_confirmation' in dictionary:
+            return dictionary[key] == dictionary['{}'.format(key + '_confirmation')]
+        return False
+
+    def message(self, attribute):
+        return 'The {} confirmation does not match.'.format(attribute)
+
+    def negated_message(self, attribute):
+        return 'The {} confirmation matches.'.format(attribute)
+
 class Validator:
 
     def __init__(self):
@@ -682,6 +695,7 @@ class ValidationFactory:
             active_domain,
             after_today,
             before_today,
+            confirmed,
             contains,
             date,
             does_not,
