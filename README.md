@@ -62,4 +62,4 @@ Errors will either be nothing or an dictionary of error messages
 
 ## Documentation
 
-You can find extension documentation on available rules at the (Masonite Documentation)[https://docs.masoniteproject.com/advanced/validation#available-rules]
+You can find extension documentation on available rules at the [Masonite Documentation](https://docs.masoniteproject.com/advanced/validation#available-rules)
