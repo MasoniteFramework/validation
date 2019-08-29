@@ -2,7 +2,31 @@ version: 2.1
 jobs:
   build:
     docker:
-      - image: circleci/python:3.6.4  # primary container for the build job
+      - image: circleci/python:3.6  # primary container for the build job
+    steps:
+      - checkout
+      - run: pip install . --user
+      - run: pip install -r requirements.txt --user
+      - run: python -m pytest
+  python34:
+    docker:
+      - image: circleci/python:3.4  # primary container for the build job
+    steps:
+      - checkout
+      - run: pip install . --user
+      - run: pip install -r requirements.txt --user
+      - run: python -m pytest
+  python35:
+    docker:
+      - image: circleci/python:3.5  # primary container for the build job
+    steps:
+      - checkout
+      - run: pip install . --user
+      - run: pip install -r requirements.txt --user
+      - run: python -m pytest
+  python37:
+    docker:
+      - image: circleci/python:3.7  # primary container for the build job
     steps:
       - checkout
       - run: pip install . --user
@@ -20,9 +44,26 @@ workflows:
           filters:  # required since `deploy` has tag filters AND requires `build`
             tags:
               only: /^.*/
+      - python34:
+          filters:  # required since `deploy` has tag filters AND requires `build`
+            tags:
+              only: /^.*/
+      - python35:
+          filters:  # required since `deploy` has tag filters AND requires `build`
+            tags:
+              only: /^.*/
+      - python37:
+          filters:  # required since `deploy` has tag filters AND requires `build`
+            tags:
+              only: /^.*/
       - masonite/deploy:
           username: josephmancuso
           password: $PYPI_PASSWORD
+          requires:
+            - build
+            - python34
+            - python35
+            - python37
           filters:  # required since `deploy` has tag filters AND requires `build`
             tags:
               only: /^.*/
