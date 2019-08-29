@@ -6,6 +6,7 @@ jobs:
     steps:
       - checkout
       - run: pip install . --user
+      - run: pip install -r requirements.txt --user
       - run: python -m pytest
       
 orbs:
