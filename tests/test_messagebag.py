@@ -34,14 +34,25 @@ class TestMessageBag(unittest.TestCase):
     def test_message_bag_can_get_first_error(self):
         self.bag.reset()
         self.bag.add('email', 'Your email is invalid')
+        self.bag.add('email', 'Your email is too short')
         self.bag.add('username', 'Your username is invalid')
-        self.assertEqual(self.bag.first(), {'email': ['Your email is invalid']})
+        self.assertEqual(self.bag.first('email'), 'Your email is invalid')
+        self.assertEqual(self.bag.first('username'), 'Your username is invalid')
 
     def test_amount_of_messages(self):
         self.bag.reset()
         self.bag.add('email', 'Your email is invalid')
         self.bag.add('email', 'Your email too short')
         self.assertEqual(self.bag.amount('email'), 2)
+
+    def test_has_message(self):
+        self.bag.reset()
+        self.assertFalse(self.bag.has('email'))
+        self.assertFalse(self.bag.has('username'))
+        self.bag.add('email', 'Your email is invalid')
+        self.bag.add('email', 'Your email too short')
+        self.assertTrue(self.bag.has('email'))
+        self.assertFalse(self.bag.has('username'))
 
     def test_get_messages(self):
         self.bag.reset()

@@ -5,7 +5,8 @@ import json
 
 class MessageBag:
 
-    items = {}
+    def __init__(self, items={}):
+        self.items = items
 
     def add(self, error, message):
         """Adds an error and message to the message bag
@@ -30,16 +31,20 @@ class MessageBag:
         """
         return len(self.items) > 0
 
+    def has(self, key):
+        """If the messagebag has any errors
+        """
+        return key in self.all()
+
     def empty(self):
         """If the messagebag has any errors
         """
         return not self.any()
 
-    def first(self):
+    def first(self, key):
         """Gets the first error and message
         """
-        for key, value in self.items.items():
-            return {key: value}
+        return self.get(key)[0]
 
     def count(self):
         """Gets the amount of errors
