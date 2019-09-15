@@ -108,3 +108,6 @@ class MessageBag:
         """
         self.items.update(dictionary)
         return self.any()
+
+    def new(self, dictionary):
+        return self.__class__(dictionary)
