@@ -25,6 +25,12 @@ class TestMessageBag(unittest.TestCase):
         self.bag.add('email', 'Your email is invalid')
         self.assertTrue(self.bag.any())
 
+    def test_message_bag_has_any_errors(self):
+        self.bag.reset()
+        self.assertTrue(self.bag.empty())
+        self.bag.add('email', 'Your email is invalid')
+        self.assertFalse(self.bag.empty())
+
     def test_message_bag_can_get_first_error(self):
         self.bag.reset()
         self.bag.add('email', 'Your email is invalid')
@@ -63,3 +69,17 @@ class TestMessageBag(unittest.TestCase):
             self.bag.messages(), 
             ['Your email is invalid', 'Your username too short']
         )
+
+    def test_can_convert_to_json(self):
+        self.bag.reset()
+        self.bag.add('email', 'Your email is invalid')
+        self.assertEqual(
+            self.bag.json(), 
+            '{"email": ["Your email is invalid"]}'
+        )
+
+    def test_can_merge(self):
+        self.bag.reset()
+        self.bag.add('email', 'Your email is invalid')
+        self.bag.merge({'username': ['username is too short']})
+        self.assertEqual(self.bag.count(), 2)

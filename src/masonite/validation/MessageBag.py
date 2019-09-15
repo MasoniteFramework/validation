@@ -1,3 +1,6 @@
+import json
+
+
 class MessageBag:
 
     items = {}
@@ -25,6 +28,11 @@ class MessageBag:
         """
         return len(self.items) > 0
 
+    def empty(self):
+        """If the messagebag has any errors
+        """
+        return not self.any()
+
     def first(self):
         """Gets the first error and message
         """
@@ -36,12 +44,17 @@ class MessageBag:
         """
         return len(self.items)
 
+    def json(self):
+        """Gets the amount of errors
+        """
+        return json.dumps(self.items)
+
     def amount(self, key):
         """Gets the amount of messages
-        
+
         Arguments:
             key {string} -- the error to get the amount of.
-        
+
         Returns:
             int -- Returns the amount of messages
         """
@@ -63,10 +76,16 @@ class MessageBag:
         messages = []
         for error, message in self.items.items():
             messages += message
-        
+
         return messages
 
     def reset(self):
         """Gets a list of all the messages
         """
         self.items = {}
+
+    def merge(self, dictionary):
+        """Gets a list of all the messages
+        """
+        self.items.update(dictionary)
+        return self.items
