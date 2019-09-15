@@ -1,3 +1,5 @@
+"""The Message Bag Module"""
+
 import json
 
 
@@ -61,7 +63,13 @@ class MessageBag:
         return len(self.items[key])
 
     def get(self, key):
-        """Gets all the messages for a specific error
+        """Gets all the messages for a specific error.
+
+        Arguments:
+            key {string} -- the error to get the messages for
+
+        Returns:
+            list -- list of errors
         """
         return self.items[key]
 
@@ -85,7 +93,13 @@ class MessageBag:
         self.items = {}
 
     def merge(self, dictionary):
-        """Gets a list of all the messages
+        """Merge a dictionary into the message bag.
+
+        Arguments:
+            dictionary {dict} -- dictionary of errors and messages.
+
+        Returns:
+            dictionary -- Returns a dictionary of the new errors.
         """
         self.items.update(dictionary)
-        return self.items
+        return self.any()
