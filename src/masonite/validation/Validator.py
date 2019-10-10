@@ -67,6 +67,9 @@ class BaseValidation:
                 return self.raise_exception(key)
 
         return boolean
+    
+    def reset(self):
+        self.errors = {}
 
 class required(BaseValidation):
 
@@ -648,7 +651,7 @@ class Validator:
                         messages = rule_errors[error]
                         messages += message
                         rule_errors.update({error: messages})
-
+                rule.reset()
             return rule_errors
 
         except Exception as e:
@@ -668,6 +671,7 @@ class Validator:
                     messages = rule_errors[error]
                     messages += message
                     rule_errors.update({error: messages})
+            rule.reset()
         return rule_errors
 
     def extend(self, key, obj=None):
