@@ -4,3 +4,4 @@ venv
 **/*__pycache__*
 masonite_validation*
 dist
+.env
