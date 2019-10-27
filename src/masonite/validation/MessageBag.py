@@ -111,3 +111,6 @@ class MessageBag:
 
     def new(self, dictionary):
         return self.__class__(dictionary)
+    
+    def __len__(self):
+        return len(self.items)
