@@ -1,9 +1,10 @@
 """The Message Bag Module"""
 
 import json
+from masonite.response import Responsable
 
 
-class MessageBag:
+class MessageBag(Responsable):
 
     def __init__(self, items={}):
         self.items = items
@@ -114,3 +115,9 @@ class MessageBag:
     
     def __len__(self):
         return len(self.items)
+
+    def __str__(self):
+        return json.dumps(self.items)
+
+    def get_response(self):
+        return json.dumps(self.items)
