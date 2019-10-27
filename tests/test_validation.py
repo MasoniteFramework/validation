@@ -990,29 +990,9 @@ class TestRuleEnclosure(unittest.TestCase):
 
         self.assertEqual(len(validate), 1)
 
-class TestStringValidation(unittest.TestCase):
+class TestDictValidation(unittest.TestCase):
 
-    def test_required(self):
-        validate = Validator().validate({
-            'test': 1
-        }, 'required:user,email')
 
-        self.assertEqual(validate['user'], ['The user field is required.'])
-        self.assertEqual(validate['email'], ['The email field is required.'])
-
-        validate = Validator().validate({
-            'test': 1
-        }, 'required:test')
-
-        self.assertEqual(len(validate), 0)
-
-    def test_multiple(self):
-        validate = Validator().validate({
-            'test': 1,
-            'terms': 'on'
-        }, 'required:test', 'truthy:test', 'accepted:terms')
-
-        self.assertEqual(len(validate), 0)
 
     def test_dictionary(self):
         validate = Validator().validate({
@@ -1028,14 +1008,3 @@ class TestStringValidation(unittest.TestCase):
         })
 
         self.assertEqual(len(validate), 0)
-
-    # def test_multiple_with_messages(self):
-    #     validate = Validator().validate({
-    #         'test': 1,
-    #         'terms': 'on',
-    #         'user': 'Joe'
-    #     }, 'required:test', 'truthy:test', 'accepted:terms', 'equals:user,Joe', messages={
-    #         'user': 'there must be a user value'
-    #     })
-
-    #     self.assertEqual(len(validate), 0)
