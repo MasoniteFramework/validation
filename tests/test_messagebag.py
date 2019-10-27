@@ -54,13 +54,17 @@ class TestMessageBag(unittest.TestCase):
         self.assertTrue(self.bag.has('email'))
         self.assertFalse(self.bag.has('username'))
 
-    def test_get_messages(self):
+    def test_get_messages_with_same_keys(self):
         self.bag.reset()
         self.bag.add('email', 'Your email is invalid')
         self.bag.add('email', 'Your email too short')
-        self.assertEqual(
+        self.assertIn(
+            'Your email is invalid',
             self.bag.get('email'), 
-            ['Your email is invalid', 'Your email too short']
+        )
+        self.assertIn(
+            'Your email too short',
+            self.bag.get('email'), 
         )
 
     def test_get_errors(self):
@@ -76,9 +80,14 @@ class TestMessageBag(unittest.TestCase):
         self.bag.reset()
         self.bag.add('email', 'Your email is invalid')
         self.bag.add('username', 'Your username too short')
-        self.assertEqual(
-            self.bag.messages(), 
-            ['Your email is invalid', 'Your username too short']
+        self.assertIn(
+            'Your email is invalid',
+            self.bag.messages(),
+        )
+
+        self.assertIn(
+            'Your username too short',
+            self.bag.messages(),
         )
 
     def test_can_convert_to_json(self):
