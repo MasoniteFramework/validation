@@ -1,5 +1,6 @@
 
 from .RuleEnclosure import RuleEnclosure
+from .MessageBag import MessageBag
 from masonite.dot import Dot as DictDot
 import inspect
 import re
@@ -652,13 +653,13 @@ class Validator:
                         messages += message
                         rule_errors.update({error: messages})
                 rule.reset()
-            return rule_errors
+            return MessageBag(rule_errors)
 
         except Exception as e:
             e.errors = rule_errors
             raise e
 
-        return rule_errors
+        return MessageBag(rule_errors)
 
     def run_enclosure(self, enclosure, dictionary):
         rule_errors = {}
