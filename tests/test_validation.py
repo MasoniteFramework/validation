@@ -7,6 +7,7 @@ from masonite.app import App
 from masonite.drivers import SessionCookieDriver
 from masonite.managers import SessionManager
 from masonite.testsuite import generate_wsgi
+from masonite.testing import TestCase
 
 from src.masonite.validation import RuleEnclosure
 from src.masonite.validation.providers import ValidationProvider
@@ -871,12 +872,11 @@ class TestValidationFactory(unittest.TestCase):
         self.assertEqual(factory.registry['required'], required)
 
 
-class TestValidationProvider(unittest.TestCase):
+class TestValidationProvider(TestCase):
 
     def setUp(self):
-        from masonite.request import Request
-        self.app = App()
-        self.app.bind('Request', Request().load_app(self.app))
+        super().setUp()
+        self.app = self.container
         self.provider = ValidationProvider().load_app(self.app)
         self.provider.register()
         self.app.resolve(self.provider.boot)
