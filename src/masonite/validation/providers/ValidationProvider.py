@@ -1,7 +1,8 @@
 """A Validation Service Provider."""
 
 from masonite.provider import ServiceProvider
-from .. import Validator, ValidationFactory
+from masonite.view import View
+from .. import Validator, ValidationFactory, MessageBag
 from ..commands.RuleEnclosureCommand import RuleEnclosureCommand
 from ..commands.RuleCommand import RuleCommand
 
@@ -14,5 +15,10 @@ class ValidationProvider(ServiceProvider):
         self.app.bind('RuleEnclosureCommand', RuleEnclosureCommand())
         self.app.bind('RuleCommand', RuleCommand())
 
-    def boot(self, validator: Validator):
+    def boot(self, validator: Validator, view: View):
         validator.extend(ValidationFactory().registry)
+
+        view.share({
+            'bag': MessageBag
+        })
+
