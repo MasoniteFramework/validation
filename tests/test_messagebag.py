@@ -103,3 +103,20 @@ class TestMessageBag(unittest.TestCase):
         self.bag.add('email', 'Your email is invalid')
         self.bag.merge({'username': ['username is too short']})
         self.assertEqual(self.bag.count(), 2)
+
+    def test_can_work_with_if_statements_and_full(self):
+        self.bag.reset()
+        self.bag.add('email', 'Your email is invalid')
+        
+        if self.bag:
+            pass
+        else:
+            raise AssertionError("Should assert true as a boolean")
+
+    def test_can_work_with_if_statements_and_false(self):
+        self.bag.reset()
+        
+        if self.bag:
+            raise AssertionError("Should not raise when not full")
+        else:
+            pass
