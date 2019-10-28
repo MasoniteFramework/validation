@@ -19,6 +19,6 @@ class ValidationProvider(ServiceProvider):
         validator.extend(ValidationFactory().registry)
 
         view.share({
-            'bag': MessageBag
+            'bag': MessageBag.view_helper
         })
 

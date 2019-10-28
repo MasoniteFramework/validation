@@ -120,4 +120,12 @@ class MessageBag(Responsable):
         return json.dumps(self.items)
 
     def get_response(self):
-        return json.dumps(self.items)
+        return json.dumps(self.items)  
+    
+    @staticmethod
+    def view_helper(errors={}):
+        if errors:
+            return MessageBag(errors)
+        
+        from wsgi import container
+        return MessageBag(container.make('Request').session.get('errors'))

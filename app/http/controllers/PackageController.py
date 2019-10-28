@@ -11,7 +11,6 @@ class PackageController:
     """
 
     def show(self, view: View, request: Request):
-
         return 'Hello World'
 
     @validate(required('name'))
