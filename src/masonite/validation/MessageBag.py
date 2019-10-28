@@ -128,4 +128,4 @@ class MessageBag(Responsable):
             return MessageBag(errors)
         
         from wsgi import container
-        return MessageBag(container.make('Request').session.get('errors'))
+        return MessageBag(container.make('Request').session.get('errors') or {})
