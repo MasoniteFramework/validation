@@ -5,3 +5,5 @@ venv
 masonite_validation*
 dist
 .env
+**/*.DS_Store
+package.db
