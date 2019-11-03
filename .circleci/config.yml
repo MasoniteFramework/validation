@@ -61,9 +61,9 @@ workflows:
           password: $PYPI_PASSWORD
           requires:
             - build
-            - python34
             - python35
             - python37
+            - python38
           filters:  # required since `deploy` has tag filters AND requires `build`
             tags:
               only: /^.*/
