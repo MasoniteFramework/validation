@@ -34,7 +34,7 @@ jobs:
       - run: python -m pytest
       
 orbs:
-    masonite: masonite/trigger@dev:latest
+    masonite: masonite/trigger@1.0.0
 
 workflows:
   version: 2
