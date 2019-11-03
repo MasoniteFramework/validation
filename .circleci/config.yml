@@ -55,7 +55,7 @@ workflows:
       - python38:
           filters:  # required since `deploy` has tag filters AND requires `build`
             tags:
-              only: /^.*/
+              only: /^.*/ 
       - masonite/deploy:
           username: josephmancuso
           password: $PYPI_PASSWORD
