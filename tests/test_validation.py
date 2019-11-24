@@ -1004,13 +1004,13 @@ class TestValidationProvider(TestCase):
         self.assertIn('password must have 2 special characters',
                       password_validation)
 
-    def test_strong_breach(self):
-        validate = Validator().validate({
-            'password': 'secret',
-        }, strong(['password'], breach=True))
+    # def test_strong_breach(self):
+    #     validate = Validator().validate({
+    #         'password': 'secret',
+    #     }, strong(['password'], breach=True))
 
-        password_validation = validate['password']
-        self.assertIn('password has been breached in the past. Try another password', password_validation)
+    #     password_validation = validate['password']
+    #     self.assertIn('password has been breached in the past. Try another password', password_validation)
         
 
 class MockRuleEnclosure(RuleEnclosure):
