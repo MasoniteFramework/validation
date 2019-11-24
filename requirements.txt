@@ -1,3 +1,4 @@
 masonite>=2.2
 pytest
 flake8
+pwnedapi
