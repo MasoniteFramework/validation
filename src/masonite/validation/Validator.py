@@ -740,8 +740,14 @@ class Validator:
         rule_errors = {}
         try:
             for rule in rules:
+                if isinstance(rule, str):
+                    rule = self.parse_string(rule)
+                    # continue
+                elif isinstance(rule, dict):
+                    rule = self.parse_dict(rule, dictionary, rule_errors)
+                    continue
 
-                if inspect.isclass(rule) and isinstance(rule(), RuleEnclosure):
+                elif inspect.isclass(rule) and isinstance(rule(), RuleEnclosure):
                     rule_errors.update(self.run_enclosure(rule(), dictionary))
                     continue
 
@@ -761,6 +767,25 @@ class Validator:
             raise e
 
         return rule_errors
+
+    def parse_string(self, rule):
+        rule, parameters = rule.split(':')[0], rule.split(':')[1].split(',')
+        return ValidationFactory().registry[rule](parameters)
+
+    def parse_dict(self, rule, dictionary, rule_errors):
+        for value, rules in rule.items():
+            for rule in rules.split('|'):
+                rule, args = rule.split(':')[0], rule.split(':')[1:]
+                rule = ValidationFactory().registry[rule](value, *args)
+
+            rule.handle(dictionary)
+            for error, message in rule.errors.items():
+                if error not in rule_errors:
+                    rule_errors.update({error: message})
+                else:
+                    messages = rule_errors[error]
+                    messages += message
+                    rule_errors.update({error: messages})
 
     def run_enclosure(self, enclosure, dictionary):
         rule_errors = {}

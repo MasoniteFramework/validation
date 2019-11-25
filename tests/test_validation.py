@@ -1046,3 +1046,22 @@ class TestRuleEnclosure(unittest.TestCase):
         }, MockRuleEnclosure)
 
         self.assertEqual(len(validate), 1)
+
+class TestDictValidation(unittest.TestCase):
+
+
+
+    def test_dictionary(self):
+        validate = Validator().validate({
+            'test': 1,
+            'terms': 'on',
+            'name': 'Joe',
+            'age': '25'
+        }, {
+            'test': 'required|truthy',
+            'terms': 'accepted',
+            'name': 'required|equals:Joe',
+            'age': 'required|greater_than:18'
+        })
+
+        self.assertEqual(len(validate), 0)
