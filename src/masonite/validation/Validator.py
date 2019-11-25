@@ -531,7 +531,7 @@ class strong(BaseValidation):
                 if letter.isupper():
                     uppercase += 1
             
-            if uppercase <= self.uppercase:
+            if uppercase < self.uppercase:
                 self.uppercase_check = False
                 all_clear = False
 
@@ -541,7 +541,7 @@ class strong(BaseValidation):
                 if letter.isdigit():
                     numbers += 1
             
-            if numbers <= self.numbers:
+            if numbers < self.numbers:
                 self.numbers_check = False
                 all_clear = False
         
