@@ -850,6 +850,7 @@ class ValidationFactory:
             phone,
             required,
             string,
+            strong,
             timezone,
             truthy,
             when,
