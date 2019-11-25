@@ -545,17 +545,17 @@ class strong(BaseValidation):
                 self.numbers_check = False
                 all_clear = False
         
-        # if self.breach:
-        #     try:
-        #         from pwnedapi import Password
-        #     except ImportError:
-        #         raise ImportError(
-        #             "Checking for breaches requires the 'pwnedapi' library. Please install it with 'pip install pwnedapi'")
+        if self.breach:
+            try:
+                from pwnedapi import Password
+            except ImportError:
+                raise ImportError(
+                    "Checking for breaches requires the 'pwnedapi' library. Please install it with 'pip install pwnedapi'")
             
-        #     password = Password(attribute)
-        #     if password.is_pwned():
-        #         self.breach_check = False
-        #         all_clear = False
+            password = Password(attribute)
+            if password.is_pwned():
+                self.breach_check = False
+                all_clear = False
 
         if self.special is not 0:
             if len(re.findall('[^A-Za-z0-9]', attribute)) < self.special:
