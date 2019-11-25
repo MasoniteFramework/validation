@@ -570,13 +570,13 @@ class strong(BaseValidation):
             message.append('{} must be {} characters in length'.format(attribute, self.length))
 
         if not self.uppercase_check:
-            message.append('{} must have {} uppercase letters'.format(attribute, self.uppercase))
+            message.append('The {} field must have {} uppercase letters'.format(attribute, self.uppercase))
         
         if not self.special_check:
-            message.append('{} must have {} special characters'.format(attribute, self.special))
+            message.append('The {} field must have {} special characters'.format(attribute, self.special))
         
         if not self.numbers_check:
-            message.append('{} must have {} numbers'.format(attribute, self.numbers))
+            message.append('The {} field must have {} numbers'.format(attribute, self.numbers))
         
         if not self.breach_check:
             message.append('{} has been breached in the past. Try another {}'.format(
@@ -815,6 +815,7 @@ class Validator:
             self.__dict__.update({
                 obj.__name__: obj
             })
+            ValidationFactory().register(obj)
 
 
 class ValidationFactory:
