@@ -4,6 +4,8 @@ from .MessageBag import MessageBag
 from masonite.dot import Dot as DictDot
 import inspect
 import re
+import hashlib
+import requests
 
 
 class BaseValidation:
@@ -26,10 +28,14 @@ class BaseValidation:
             if key in self.errors:
                 self.errors[key].append(self.messages[key])
                 return
-
             self.errors.update({key: [self.messages[key]]})
             return
-        self.errors.update({key: [message]})
+        
+        if not isinstance(message, list):
+            self.errors.update({key: [message]})
+        else:
+            self.errors.update({key: message})
+        
 
     def find(self, key, dictionary, default=False):
         return DictDot().dot(key, dictionary, default)
@@ -497,6 +503,90 @@ class less_than(BaseValidation):
     def negated_message(self, attribute):
         return 'The {} must not be less than {}.'.format(attribute, self.value)
 
+class strong(BaseValidation):
+
+    def __init__(self, validations, length=8, uppercase=2, numbers=2, special=2, breach=False, messages={}, raises={}):
+        super().__init__(validations, messages=messages, raises=raises)
+        self.length = length
+        self.uppercase = uppercase
+        self.numbers = numbers
+        self.special = special
+        self.breach = breach
+        self.length_check = True
+        self.uppercase_check = True
+        self.numbers_check = True
+        self.special_check = True
+        self.breach_check = True
+
+    def passes(self, attribute, key, dictionary):
+        all_clear = True
+
+        if len(attribute) <= self.length: 
+            all_clear = False
+            self.length_check = False
+
+        if self.uppercase is not 0:
+            uppercase = 0
+            for letter in attribute:
+                if letter.isupper():
+                    uppercase += 1
+            
+            if uppercase <= self.uppercase:
+                self.uppercase_check = False
+                all_clear = False
+
+        if self.numbers is not 0:
+            numbers = 0
+            for letter in attribute:
+                if letter.isdigit():
+                    numbers += 1
+            
+            if numbers <= self.numbers:
+                self.numbers_check = False
+                all_clear = False
+        
+        # if self.breach:
+        #     try:
+        #         from pwnedapi import Password
+        #     except ImportError:
+        #         raise ImportError(
+        #             "Checking for breaches requires the 'pwnedapi' library. Please install it with 'pip install pwnedapi'")
+            
+        #     password = Password(attribute)
+        #     if password.is_pwned():
+        #         self.breach_check = False
+        #         all_clear = False
+
+        if self.special is not 0:
+            if len(re.findall('[^A-Za-z0-9]', attribute)) < self.special:
+                self.special_check = False
+                all_clear = False
+
+        return all_clear
+
+    def message(self, attribute):
+        message = []
+        if not self.length_check:
+            message.append('{} must be {} characters in length'.format(attribute, self.length))
+
+        if not self.uppercase_check:
+            message.append('{} must have {} uppercase letters'.format(attribute, self.uppercase))
+        
+        if not self.special_check:
+            message.append('{} must have {} special characters'.format(attribute, self.special))
+        
+        if not self.numbers_check:
+            message.append('{} must have {} numbers'.format(attribute, self.numbers))
+        
+        if not self.breach_check:
+            message.append('{} has been breached in the past. Try another {}'.format(
+                attribute, attribute))
+        
+        return message
+
+    def negated_message(self, attribute):
+        return 'The {} must not be less than {}.'.format(attribute, self.value)
+
 
 class isnt(BaseValidation):
 
@@ -630,6 +720,18 @@ class confirmed(BaseValidation):
     def negated_message(self, attribute):
         return 'The {} confirmation matches.'.format(attribute)
 
+def flatten(iterable):
+    
+    flat_list = []
+    for route in iterable:
+        if isinstance(route, list):
+            for r in flatten(route):
+                flat_list.append(r)
+        else:
+            flat_list.append(route)
+
+    return flat_list
+
 class Validator:
 
     def __init__(self):
@@ -639,8 +741,14 @@ class Validator:
         rule_errors = {}
         try:
             for rule in rules:
+                if isinstance(rule, str):
+                    rule = self.parse_string(rule)
+                    # continue
+                elif isinstance(rule, dict):
+                    rule = self.parse_dict(rule, dictionary, rule_errors)
+                    continue
 
-                if inspect.isclass(rule) and isinstance(rule(), RuleEnclosure):
+                elif inspect.isclass(rule) and isinstance(rule(), RuleEnclosure):
                     rule_errors.update(self.run_enclosure(rule(), dictionary))
                     continue
 
@@ -660,6 +768,25 @@ class Validator:
             raise e
 
         return MessageBag(rule_errors)
+
+    def parse_string(self, rule):
+        rule, parameters = rule.split(':')[0], rule.split(':')[1].split(',')
+        return ValidationFactory().registry[rule](parameters)
+
+    def parse_dict(self, rule, dictionary, rule_errors):
+        for value, rules in rule.items():
+            for rule in rules.split('|'):
+                rule, args = rule.split(':')[0], rule.split(':')[1:]
+                rule = ValidationFactory().registry[rule](value, *args)
+
+            rule.handle(dictionary)
+            for error, message in rule.errors.items():
+                if error not in rule_errors:
+                    rule_errors.update({error: message})
+                else:
+                    messages = rule_errors[error]
+                    messages += message
+                    rule_errors.update({error: messages})
 
     def run_enclosure(self, enclosure, dictionary):
         rule_errors = {}
@@ -724,6 +851,7 @@ class ValidationFactory:
             phone,
             required,
             string,
+            strong,
             timezone,
             truthy,
             when,

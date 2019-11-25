@@ -16,7 +16,7 @@ from src.masonite.validation.Validator import (ValidationFactory, Validator,
                                                contains, date, does_not, email,
                                                equals, exists, greater_than,
                                                in_range, ip, is_future, is_in,
-                                               is_past, isnt)
+                                               is_past, isnt, strong)
 from src.masonite.validation.Validator import json as vjson
 from src.masonite.validation.Validator import (length, less_than, matches,
                                                none, numeric, one_of, phone,
@@ -40,6 +40,13 @@ class TestValidation(unittest.TestCase):
         validate = Validator().validate({
             'test': 1
         }, required(['test']))
+
+        self.assertEqual(len(validate), 0)
+
+    def test_can_validate_null_values(self):
+        validate = Validator().validate({
+            'test': None
+        }, length(['test'], min=2, max=5))
 
         self.assertEqual(len(validate), 0)
 
@@ -961,6 +968,56 @@ class TestValidationProvider(TestCase):
         self.assertEqual(
             validate.all(), {'password': ['The password confirmation does not match.']})
 
+    def test_strong(self):
+        validate = Validator().validate({
+            'password': 'secret',
+        }, strong(['password'], uppercase=0, special=0, numbers=0))
+
+        self.assertEqual(
+            validate.all(), {'password': ['password must be 8 characters in length']})
+        
+        validate = Validator().validate({
+            'password': 'Secret',
+        }, strong(['password'], length=5, uppercase=2, special=0, numbers=0))
+
+        self.assertEqual(
+            validate.all(), {'password': ['password must have 2 uppercase letters']})
+
+        validate = Validator().validate({
+            'password': 'secret!',
+        }, strong(['password'], length=5, uppercase=0, special=2, numbers=0))
+
+        self.assertEqual(
+            validate.all(), {'password': ['password must have 2 special characters']})
+
+        validate = Validator().validate({
+            'password': 'secret!',
+        }, strong(['password'], length=5, uppercase=0, special=0, numbers=2))
+
+        self.assertEqual(
+            validate.all(), {'password': ['password must have 2 numbers']})
+
+        validate = Validator().validate({
+            'password': 'secret!',
+        }, strong(['password'], length=8, uppercase=2, special=2, numbers=2))
+
+        password_validation = validate.get('password')
+        self.assertIn('password must have 2 numbers', password_validation)
+        self.assertIn('password must be 8 characters in length',
+                      password_validation)
+        self.assertIn('password must have 2 uppercase letters',
+                      password_validation)
+        self.assertIn('password must have 2 special characters',
+                      password_validation)
+
+    # def test_strong_breach(self):
+    #     validate = Validator().validate({
+    #         'password': 'secret',
+    #     }, strong(['password'], breach=True))
+
+    #     password_validation = validate['password']
+    #     self.assertIn('password has been breached in the past. Try another password', password_validation)
+        
 
 class MockRuleEnclosure(RuleEnclosure):
 
@@ -988,3 +1045,22 @@ class TestRuleEnclosure(unittest.TestCase):
         }, MockRuleEnclosure)
 
         self.assertEqual(len(validate), 1)
+
+class TestDictValidation(unittest.TestCase):
+
+
+
+    def test_dictionary(self):
+        validate = Validator().validate({
+            'test': 1,
+            'terms': 'on',
+            'name': 'Joe',
+            'age': '25'
+        }, {
+            'test': 'required|truthy',
+            'terms': 'accepted',
+            'name': 'required|equals:Joe',
+            'age': 'required|greater_than:18'
+        })
+
+        self.assertEqual(len(validate), 0)
