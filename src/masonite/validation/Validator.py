@@ -567,7 +567,7 @@ class strong(BaseValidation):
     def message(self, attribute):
         message = []
         if not self.length_check:
-            message.append('{} must be {} characters in length'.format(attribute, self.length))
+            message.append('The {} field must be {} characters in length'.format(attribute, self.length))
 
         if not self.uppercase_check:
             message.append('The {} field must have {} uppercase letters'.format(attribute, self.uppercase))
@@ -579,7 +579,7 @@ class strong(BaseValidation):
             message.append('The {} field must have {} numbers'.format(attribute, self.numbers))
         
         if not self.breach_check:
-            message.append('{} has been breached in the past. Try another {}'.format(
+            message.append('The {} field has been breached in the past. Try another {}'.format(
                 attribute, attribute))
         
         return message
