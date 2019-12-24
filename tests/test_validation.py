@@ -11,7 +11,7 @@ from masonite.testing import TestCase
 
 from src.masonite.validation import RuleEnclosure
 from src.masonite.validation.providers import ValidationProvider
-from src.masonite.validation.Validator import (ValidationFactory, Validator,
+from src.masonite.validation import (ValidationFactory, Validator,
                                                accepted, active_domain,
                                                after_today, before_today, confirmed,
                                                contains, date, does_not, email,
