@@ -5,3 +5,4 @@ venv
 masonite_validation*
 dist
 .env
+venv2.2
