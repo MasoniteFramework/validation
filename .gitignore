@@ -7,3 +7,4 @@ dist
 .env
 **/*.DS_Store
 package.db
+venv2.2
