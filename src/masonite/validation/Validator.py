@@ -719,6 +719,22 @@ class confirmed(BaseValidation):
     def negated_message(self, attribute):
         return 'The {} confirmation matches.'.format(attribute)
 
+
+class regex(BaseValidation):
+    def __init__(self, validations, pattern, messages={}, raises={}):
+        super().__init__(validations, messages=messages, raises=raises)
+        self.pattern = pattern
+
+    def passes(self, attribute, key, dictionary):
+        return re.compile(pattern)
+
+    def message(self, attribute):
+        return "{attribute} does not match pattern {self.pattern}."
+
+    def negated_message(self, attribute):
+        return "{attribute} matches pattern {self.pattern}."
+
+
 def flatten(iterable):
     
     flat_list = []
