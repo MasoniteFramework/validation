@@ -726,13 +726,13 @@ class regex(BaseValidation):
         self.pattern = pattern
 
     def passes(self, attribute, key, dictionary):
-        return re.compile(pattern)
+        return re.compile(r"{}".format(self.pattern)).match(attribute)
 
     def message(self, attribute):
-        return "{attribute} does not match pattern {self.pattern}."
+        return "{} does not match pattern {} .".format(attribute, self.pattern)
 
     def negated_message(self, attribute):
-        return "{attribute} matches pattern {self.pattern}."
+        return "{} matches pattern {} .".format(attribute, self.pattern)
 
 
 def flatten(iterable):

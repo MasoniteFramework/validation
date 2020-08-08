@@ -17,7 +17,7 @@ from src.masonite.validation import (ValidationFactory, Validator,
                                                contains, date, does_not, email,
                                                equals, exists, greater_than,
                                                in_range, ip, is_future, is_in,
-                                               is_past, isnt, strong)
+                                               is_past, isnt, strong, regex)
 from src.masonite.validation.Validator import json as vjson
 from src.masonite.validation.Validator import (length, less_than, matches,
                                                none, numeric, one_of, phone,
@@ -646,6 +646,17 @@ class TestValidation(unittest.TestCase):
         }, one_of(['email', 'phone', 'password', 'user']))
 
         self.assertEqual(len(validate), 0)
+
+    def test_regex(self):
+        validate = Validator().validate({
+            'username': 'masonite_user_1',
+        }, regex(['username'], '^[a-z0-9_-]{3,16}$'))
+        self.assertEqual(len(validate), 0)
+
+        validate = Validator().validate({
+            'username': 'Masonite User 2'
+        }, regex(['username'], '^[a-z0-9_-]{3,16}$'))
+        self.assertEqual(validate['username'], ['username does not match pattern ^[a-z0-9_-]{3,16}$ .'])
 
 
 class TestDotNotationValidation(unittest.TestCase):
