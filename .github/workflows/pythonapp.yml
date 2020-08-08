@@ -36,4 +36,3 @@ jobs:
     - name: Lint
       run: make lint
 
-s
