@@ -386,8 +386,10 @@ class none(BaseValidation):
 
 
 class length(BaseValidation):
+    MIN = 1
+    MAX = 999999
 
-    def __init__(self, validations, min=1, max=999999, messages={}, raises={}):
+    def __init__(self, validations, min=MIN, max=MAX, messages={}, raises={}):
         super().__init__(validations, messages=messages, raises=raises)
         if isinstance(min, str) and '..' in min:
             self.min = int(min.split('..')[0])
@@ -400,10 +402,16 @@ class length(BaseValidation):
         return len(str(attribute)) >= self.min and len(str(attribute)) <= self.max
 
     def message(self, attribute):
-        return 'The {} length must be between {} and {}.'.format(attribute, self.min, self.max)
+        if self.max == self.MAX and self.min != self.MIN:
+            return '{} must be at least {} characters.'.format(attribute, self.min)
+        else:
+            return '{} length must be between {} and {}.'.format(attribute, self.min, self.max)
 
     def negated_message(self, attribute):
-        return 'The {} length must not be between {} and {}.'.format(attribute, self.min, self.max)
+        if self.max == self.MAX and self.min != self.MIN:
+            return '{} must be {} characters maximum.'.format(attribute, self.max)
+        else:
+            return '{} length must not be between {} and {}.'.format(attribute, self.min, self.max)
 
 
 class in_range(BaseValidation):

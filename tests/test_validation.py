@@ -381,7 +381,23 @@ class TestValidation(unittest.TestCase):
         }, length(['json'], min=1, max=10))
 
         self.assertEqual(
-            validate, {'json': ['The json length must be between 1 and 10.']})
+            validate, {'json': ['json length must be between 1 and 10.']})
+
+        # test when only min given
+        validate = Validator().validate({
+            'json': 'hoh'
+        }, length(['json'], min=6))
+
+        self.assertEqual(
+            validate, {'json': ['json must be at least 6 characters.']})
+
+        # test when only max given
+        validate = Validator().validate({
+            'json': 'this is a string too long'
+        }, length(['json'], max=10))
+
+        self.assertEqual(
+            validate, {'json': ['json length must be between 1 and 10.']})
 
     def test_string(self):
         validate = Validator().validate({
@@ -759,7 +775,7 @@ class TestDotNotationValidation(unittest.TestCase):
         }, length(['user.description'], min=1, max=10))
 
         self.assertEqual(validate, {'user.description': [
-                         'The user.description length must be between 1 and 10.']})
+                         'user.description length must be between 1 and 10.']})
 
     def test_dot_in_range(self):
         validate = Validator().validate({
