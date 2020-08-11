@@ -8,3 +8,5 @@ dist
 **/*.DS_Store
 package.db
 venv2.2
+.coverage
+coverage.xml
