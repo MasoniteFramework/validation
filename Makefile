@@ -1,6 +1,6 @@
 init:
 	pip install .
-	pip install -r requirements.txt --user
+	pip install -r requirements.txt
 	pip install pytest
 test:
 	python -m pytest tests
