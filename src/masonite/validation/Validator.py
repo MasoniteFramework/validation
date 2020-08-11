@@ -748,10 +748,10 @@ class regex(BaseValidation):
         return re.compile(r"{}".format(self.pattern)).match(attribute)
 
     def message(self, attribute):
-        return "{} does not match pattern {} .".format(attribute, self.pattern)
+        return "The {} does not match pattern {} .".format(attribute, self.pattern)
 
     def negated_message(self, attribute):
-        return "{} matches pattern {} .".format(attribute, self.pattern)
+        return "The {} matches pattern {} .".format(attribute, self.pattern)
 
 
 def flatten(iterable):
