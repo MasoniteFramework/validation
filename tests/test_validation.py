@@ -204,19 +204,13 @@ class TestValidation(unittest.TestCase):
         self.assertEqual(len(validate), 0)
 
         validate = Validator().validate({
-            'date': '2020-05-21T22:00:00',
+            'date': pendulum.tomorrow().to_datetime_string(),
         }, before_today(['date']))
 
         self.assertEqual(
             validate, {'date': ['The date must be a date before today.']})
 
     def test_after_today(self):
-        validate = Validator().validate({
-            'date': '2020-05-21T22:00:00',
-        }, after_today(['date']))
-
-        self.assertEqual(len(validate), 0)
-
         validate = Validator().validate({
             'date': pendulum.tomorrow().to_datetime_string(),
         }, after_today(['date']))
@@ -251,12 +245,6 @@ class TestValidation(unittest.TestCase):
             validate, {'date': ['The date must be a time in the past.']})
 
     def test_is_future(self):
-        validate = Validator().validate({
-            'date': '2020-05-21T22:00:00',
-        }, is_future(['date']))
-
-        self.assertEqual(len(validate), 0)
-
         validate = Validator().validate({
             'date': pendulum.tomorrow().to_datetime_string(),
         }, is_future(['date'], tz='America/New_York'))
