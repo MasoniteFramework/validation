@@ -920,6 +920,7 @@ class ValidationFactory:
             numeric,
             one_of,
             phone,
+            regex,
             required,
             string,
             strong,
