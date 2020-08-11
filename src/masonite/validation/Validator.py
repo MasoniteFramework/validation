@@ -353,7 +353,6 @@ class active_domain(BaseValidation):
 
 class numeric(BaseValidation):
     def passes(self, attribute, key, dictionary):
-        print("str", str(attribute))
         if isinstance(attribute, list):
             for value in attribute:
                 if not str(value).isdigit():
@@ -403,7 +402,10 @@ class length(BaseValidation):
             self.max = max
 
     def passes(self, attribute, key, dictionary):
-        return len(str(attribute)) >= self.min and len(str(attribute)) <= self.max
+        if not hasattr(attribute, "__len__"):
+            attribute = str(attribute)
+
+        return len(attribute) >= self.min and len(attribute) <= self.max
 
     def message(self, attribute):
         if self.min and not self.max:
