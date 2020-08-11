@@ -1,5 +1,5 @@
 masonite>=2.3,<2.4.0
 pytest
 flake8
-black
+black==19.10b0
 pwnedapi==1.0.2
