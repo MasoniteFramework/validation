@@ -15,7 +15,7 @@ from src.masonite.validation import (ValidationFactory, Validator,
                                                after_today, before_today, confirmed,
                                                contains, date, does_not, email,
                                                equals, exists, greater_than,
-                                               in_range, ip, is_future, is_in,
+                                               in_range, ip, is_future, is_list, is_in,
                                                is_past, isnt, strong, regex)
 from src.masonite.validation.Validator import json as vjson
 from src.masonite.validation.Validator import (length, less_than, matches,
@@ -693,6 +693,25 @@ class TestValidation(unittest.TestCase):
         )
 
         self.assertEqual(len(validate), 0)
+
+    def test_list_validation(self):
+        validate = Validator().validate({
+            'name': 'Joe',
+            'discounts_ref': [1,2,3]
+        },
+            is_list(['discounts_ref.*']), 
+        )
+
+        self.assertEqual(len(validate), 0)
+
+        validate = Validator().validate({
+            'name': 'Joe',
+            'discounts_ref': {1:2}
+        },
+            is_list(['discounts_ref.*']), 
+        )
+
+        self.assertEqual(len(validate), 1)
 
 
 class TestDotNotationValidation(unittest.TestCase):

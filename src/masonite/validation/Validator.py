@@ -369,6 +369,17 @@ class numeric(BaseValidation):
         return "The {} must not be a numeric.".format(attribute)
 
 
+class is_list(BaseValidation):
+    def passes(self, attribute, key, dictionary):
+        return isinstance(attribute, list)
+
+    def message(self, attribute):
+        return "The {} must be a list.".format(attribute)
+
+    def negated_message(self, attribute):
+        return "The {} must not be a list.".format(attribute)
+
+
 class string(BaseValidation):
     def passes(self, attribute, key, dictionary):
         return isinstance(attribute, str)
@@ -888,6 +899,7 @@ class ValidationFactory:
             is_future,
             is_in,
             isnt,
+            is_list,
             is_past,
             ip,
             json,

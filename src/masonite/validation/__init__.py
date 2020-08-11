@@ -19,6 +19,7 @@ from .Validator import (
     in_range,
     ip,
     is_future,
+    is_list,
     is_in,
     is_past,
     isnt,
