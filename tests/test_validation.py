@@ -382,6 +382,22 @@ class TestValidation(unittest.TestCase):
         self.assertEqual(
             validate.all(), {'json': ['The json length must be between 1 and 10.']})
 
+        # test when only min given
+        validate = Validator().validate({
+            'json': 'hoh'
+        }, length(['json'], min=6))
+
+        self.assertEqual(
+            validate.all(), {'json': ['The json must be at least 6 characters.']})
+
+        # test when only max given
+        validate = Validator().validate({
+            'json': 'this is a string too long'
+        }, length(['json'], max=10))
+
+        self.assertEqual(
+            validate.all(), {'json': ['The json length must be between 1 and 10.']})
+
     def test_string(self):
         validate = Validator().validate({
             'text': 'hey'
