@@ -406,6 +406,12 @@ class TestValidation(unittest.TestCase):
         self.assertEqual(len(validate), 0)
 
         validate = Validator().validate({
+            'text': ['string1', 'string2']
+        }, string(['text']))
+
+        self.assertEqual(len(validate), 0)
+
+        validate = Validator().validate({
             'text': 1
         }, string(['text']))
 
@@ -884,7 +890,7 @@ class TestDotNotationValidation(unittest.TestCase):
             }
         }, required(['user.addresses.*.id']), equals('user.addresses.*.id', [1,2,3]))
 
-        self.assertEqual(len(validate), 0)
+        self.assertEqual(len(validate), 0, validate)
 
         validate = Validator().validate({
             'user': {

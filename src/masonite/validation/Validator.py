@@ -53,8 +53,10 @@ class BaseValidation:
 
     def handle(self, dictionary):
         boolean = True
+        
         for key in self.validations:
             if self.negated:
+                
                 if self.passes(self.find(key, dictionary), key, dictionary):
                     boolean = False
                     if hasattr(self, "negated_message"):
@@ -63,7 +65,8 @@ class BaseValidation:
                         self.error(key, self.message(key))
 
                 continue
-            if not self.passes(self.find(key, dictionary), key, dictionary):
+            attribute = self.find(key, dictionary)
+            if not self.passes(attribute, key, dictionary):
                 boolean = False
                 self.error(key, self.message(key))
 
@@ -382,6 +385,13 @@ class is_list(BaseValidation):
 
 class string(BaseValidation):
     def passes(self, attribute, key, dictionary):
+        if isinstance(attribute, list):
+            for attr in attribute:
+                if not isinstance(attr, str):
+                    return False
+
+            return True
+
         return isinstance(attribute, str)
 
     def message(self, attribute):
