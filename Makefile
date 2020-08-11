@@ -14,3 +14,8 @@ format:
 coverage:
 	python -m pytest --cov-report term --cov-report xml --cov=src/masonite/validation tests/
 	python -m coveralls
+publish:
+	pip install 'twine>=1.5.0'
+	python setup.py sdist bdist_wheel
+	twine upload dist/*
+	rm -fr build dist .egg masonite.egg-info

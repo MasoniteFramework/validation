@@ -5,7 +5,6 @@ from masonite.response import Responsable
 
 
 class MessageBag(Responsable):
-
     def __init__(self, items={}):
         self.items = items
 
@@ -112,7 +111,7 @@ class MessageBag(Responsable):
 
     def new(self, dictionary):
         return self.__class__(dictionary)
-    
+
     def __len__(self):
         return len(self.items)
 
@@ -120,12 +119,13 @@ class MessageBag(Responsable):
         return json.dumps(self.items)
 
     def get_response(self):
-        return json.dumps(self.items)  
-    
+        return json.dumps(self.items)
+
     @staticmethod
     def view_helper(errors={}):
         if errors:
             return MessageBag(errors)
-        
+
         from wsgi import container
-        return MessageBag(container.make('Request').session.get('errors') or {})
+
+        return MessageBag(container.make("Request").session.get("errors") or {})

@@ -11,7 +11,7 @@ class RuleCommand(BaseScaffoldCommand):
         {name : Name of the rule}
     """
 
-    scaffold_name = 'Rule'
+    scaffold_name = "Rule"
     postfix = ""
-    template = '/masonite/validation/snippets/scaffold/rule'
-    base_directory = 'app/rules/'
+    template = "/masonite/validation/snippets/scaffold/rule"
+    base_directory = "app/rules/"
