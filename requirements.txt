@@ -1,3 +1,5 @@
-https://github.com/masoniteframework/masonite/archive/develop.zip
+masonite>=2.3,<2.4.0
 pytest
 flake8
+black
+pwnedapi==1.0.2
