@@ -353,11 +353,11 @@ class active_domain(BaseValidation):
 
 class numeric(BaseValidation):
     def passes(self, attribute, key, dictionary):
-        print('str', str(attribute))
+        print("str", str(attribute))
         if isinstance(attribute, list):
             for value in attribute:
-               if not str(value).isdigit():
-                   return False
+                if not str(value).isdigit():
+                    return False
         else:
             return str(attribute).isdigit()
 
@@ -393,7 +393,6 @@ class none(BaseValidation):
 
 
 class length(BaseValidation):
-
     def __init__(self, validations, min=1, max=False, messages={}, raises={}):
         super().__init__(validations, messages=messages, raises=raises)
         if isinstance(min, str) and ".." in min:
@@ -408,15 +407,19 @@ class length(BaseValidation):
 
     def message(self, attribute):
         if self.min and not self.max:
-            return 'The {} must be at least {} characters.'.format(attribute, self.min)
+            return "The {} must be at least {} characters.".format(attribute, self.min)
         else:
-            return 'The {} length must be between {} and {}.'.format(attribute, self.min, self.max)
+            return "The {} length must be between {} and {}.".format(
+                attribute, self.min, self.max
+            )
 
     def negated_message(self, attribute):
         if self.min and not self.max:
-            return 'The {} must be {} characters maximum.'.format(attribute, self.max)
+            return "The {} must be {} characters maximum.".format(attribute, self.max)
         else:
-            return 'The {} length must not be between {} and {}.'.format(attribute, self.min, self.max)
+            return "The {} length must not be between {} and {}.".format(
+                attribute, self.min, self.max
+            )
 
 
 class in_range(BaseValidation):
