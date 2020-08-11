@@ -91,7 +91,7 @@ class required(BaseValidation):
         Returns:
             bool
         """
-        return attribute
+        return attribute or key in dictionary
 
     def message(self, key):
         """A message to show when this rule fails
@@ -353,7 +353,15 @@ class active_domain(BaseValidation):
 
 class numeric(BaseValidation):
     def passes(self, attribute, key, dictionary):
-        return str(attribute).isdigit()
+        print('str', str(attribute))
+        if isinstance(attribute, list):
+            for value in attribute:
+               if not str(value).isdigit():
+                   return False
+        else:
+            return str(attribute).isdigit()
+
+        return True
 
     def message(self, attribute):
         return "The {} must be a numeric.".format(attribute)

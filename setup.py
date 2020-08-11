@@ -11,7 +11,7 @@ setup(
     include_package_data=True,
     version='3.0.5',
     install_requires=[
-        'masonite-dot'
+        'masonite-dot>=0.0.5'
     ],
     description="Validation Package",
     author="Joseph Mancuso",
