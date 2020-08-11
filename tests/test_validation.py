@@ -649,13 +649,13 @@ class TestValidation(unittest.TestCase):
     def test_regex(self):
         validate = Validator().validate({
             'username': 'masonite_user_1',
-        }, regex(['username'], '^[a-z0-9_-]{3,16}$'))
+        }, regex(['username'], r'^[a-z0-9_-]{3,16}$'))
         self.assertEqual(len(validate), 0)
 
         validate = Validator().validate({
             'username': 'Masonite User 2'
-        }, regex(['username'], '^[a-z0-9_-]{3,16}$'))
-        self.assertEqual(validate['username'], ['username does not match pattern ^[a-z0-9_-]{3,16}$ .'])
+        }, regex(['username'], r'^[a-z0-9_-]{3,16}$'))
+        self.assertEqual(validate.get('username'), ['username does not match pattern ^[a-z0-9_-]{3,16}$ .'])
 
 
 class TestDotNotationValidation(unittest.TestCase):

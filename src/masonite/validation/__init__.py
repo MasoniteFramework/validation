@@ -28,7 +28,7 @@ from .Validator import (
     none,
     numeric,
     phone,
-    regex
+    regex,
     required,
     string,
     strong,
