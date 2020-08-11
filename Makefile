@@ -1,4 +1,5 @@
 init:
+	cp .env-example .env
 	pip install --upgrade pip
 	pip install .
 	pip install -r requirements.txt
