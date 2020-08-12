@@ -53,10 +53,10 @@ class BaseValidation:
 
     def handle(self, dictionary):
         boolean = True
-        
+
         for key in self.validations:
             if self.negated:
-                
+
                 if self.passes(self.find(key, dictionary), key, dictionary):
                     boolean = False
                     if hasattr(self, "negated_message"):
