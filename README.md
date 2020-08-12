@@ -3,6 +3,8 @@
   <img src="https://i.imgur.com/rEXcoMn.png" width="160px">
 </p>
 
+[Github Actions status](https://github.com/MasoniteFramework/validation/workflows/Test%20Application/badge.svg)
+
 ## Masonite Validation
 
 This package is a standalone component package for the [Masonite](https://github.com/masoniteframework/masonite) framework.
