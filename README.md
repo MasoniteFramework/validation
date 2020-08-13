@@ -4,6 +4,8 @@
 </p>
 
 [Github Actions status](https://github.com/MasoniteFramework/validation/workflows/Test%20Application/badge.svg)
+[![Coverage Status](https://coveralls.io/repos/github/MasoniteFramework/validation/badge.svg?branch=master)](https://coveralls.io/github/MasoniteFramework/validation?branch=master)
+
 
 ## Masonite Validation
 
