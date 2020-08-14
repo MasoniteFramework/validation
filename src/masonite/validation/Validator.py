@@ -797,7 +797,9 @@ class file(BaseValidation):
     def __init__(self, validations, size=False, mimes=False, messages={}, raises={}):
         super().__init__(validations, messages=messages, raises=raises)
         # parse size into bytes
-        self.size = size
+        from hfilesize import FileSize
+
+        self.size = FileSize(size, case_sensitive=False)
         # parse allowed extensions to a list of mime types
         # TODO: what if match not found, None for now ...?
         self.allowed_extensions = mimes
@@ -834,9 +836,12 @@ class file(BaseValidation):
         if not self.file_check:
             messages.append("The {} is not a valid file.".format(attribute))
         if not self.size_check:
-            # TODO: add better display of file size in message
+            from hfilesize import FileSize
+
             messages.append(
-                "The {} file size exceeds {} bytes.".format(attribute, self.size)
+                "The {} file size exceeds {:.02fH}.".format(
+                    attribute, FileSize(self.size)
+                )
             )
         if not self.mimes_check:
             # should we reprecise allowed mime types ? I guess

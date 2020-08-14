@@ -667,6 +667,7 @@ class TestValidation(unittest.TestCase):
     def test_file_size_validation(self):
         import os
 
+        # check that max size is 100 bytes
         test_file = os.path.abspath(__file__)
         validate = Validator().validate(
             {"document": test_file}, file(["document"], size=100)
@@ -674,11 +675,18 @@ class TestValidation(unittest.TestCase):
         self.assertEqual(
             validate.get("document"), ["The document file size exceeds 100 bytes."]
         )
-        # check that file size < 2 Mio
+
         validate = Validator().validate(
-            {"document": test_file}, file(["document"], size=1024 * 1024 * 2)
+            {"document": test_file}, file(["document"], size="2MB")
         )
         self.assertEqual(len(validate), 0)
+
+        validate = Validator().validate(
+            {"document": test_file}, file(["document"], size="4K")
+        )
+        self.assertEqual(
+            validate.get("document"), ["The document file size exceeds 4 KB."]
+        )
 
     def test_file_mime_types_validation(self):
         import os
