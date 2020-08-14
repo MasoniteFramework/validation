@@ -6,6 +6,7 @@ import re
 import hashlib
 import requests
 import os
+import mimetypes
 
 
 class BaseValidation:
@@ -797,8 +798,13 @@ class file(BaseValidation):
         super().__init__(validations, messages=messages, raises=raises)
         # parse size into bytes
         self.size = size
-        # parse mimes into list ?
-        self.mimes = mimes
+        # parse allowed extensions to a list of mime types
+        # TODO: what if match not found, None for now ...?
+        self.allowed_extensions = mimes
+        if mimes:
+            self.allowed_mimetypes = list(
+                map(lambda mt: mimetypes.types_map.get(f".{mt}", None), mimes)
+            )
         # internal state
         self.file_check = True
         self.size_check = True
@@ -815,11 +821,9 @@ class file(BaseValidation):
             if file_size > self.size:
                 self.size_check = False
                 self.all_clear = False
-        if self.mimes:
-            import mimetypes
-
+        if self.allowed_extensions:
             mimetype, encoding = mimetypes.guess_type(attribute)
-            if mimetype not in self.mimes:
+            if mimetype not in self.allowed_mimetypes:
                 self.mimes_check = False
                 self.all_clear = False
 
@@ -836,7 +840,11 @@ class file(BaseValidation):
             )
         if not self.mimes_check:
             # should we reprecise allowed mime types ? I guess
-            messages.append("The {} mime type is not valid.".format(attribute))
+            messages.append(
+                "The {} mime type is not valid. Allowed types are {}.".format(
+                    attribute, ",".join(self.allowed_extensions)
+                )
+            )
         return messages
 
     def negated_message(self, attribute):

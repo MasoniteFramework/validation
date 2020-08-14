@@ -688,11 +688,12 @@ class TestValidation(unittest.TestCase):
             {"document": test_file}, file(["document"], mimes=["jpg", "png",])
         )
         self.assertEqual(
-            validate.get("document"), ["The document mime type is not valid."]
+            validate.get("document"),
+            ["The document mime type is not valid. Allowed types are jpg,png."],
         )
 
         validate = Validator().validate(
-            {"document": test_file}, file(["document"], mimes=["text/x-python",])
+            {"document": test_file}, file(["document"], mimes=["py",])
         )
         self.assertEqual(len(validate), 0)
 
@@ -707,7 +708,7 @@ class TestValidation(unittest.TestCase):
             validate.get("document"),
             [
                 "The document file size exceeds 100 bytes.",
-                "The document mime type is not valid.",
+                "The document mime type is not valid. Allowed types are jpg,png.",
             ],
         )
 
