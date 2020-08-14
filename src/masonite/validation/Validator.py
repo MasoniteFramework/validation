@@ -803,7 +803,7 @@ class file(BaseValidation):
         self.allowed_extensions = mimes
         if mimes:
             self.allowed_mimetypes = list(
-                map(lambda mt: mimetypes.types_map.get(f".{mt}", None), mimes)
+                map(lambda mt: mimetypes.types_map.get("." + mt, None), mimes)
             )
         # internal state
         self.file_check = True
