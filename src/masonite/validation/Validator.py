@@ -853,7 +853,25 @@ class file(BaseValidation):
         return messages
 
     def negated_message(self, attribute):
-        pass
+        messages = []
+        if self.file_check:
+            messages.append("The {} is a valid file.".format(attribute))
+        if self.size_check:
+            from hfilesize import FileSize
+
+            messages.append(
+                "The {} file size is less or equal than {:.02fH}.".format(
+                    attribute, FileSize(self.size)
+                )
+            )
+        if self.mimes_check:
+            # should we reprecise allowed mime types ? I guess
+            messages.append(
+                "The {} mime type is in {}.".format(
+                    attribute, ",".join(self.allowed_extensions)
+                )
+            )
+        return messages
 
 
 def flatten(iterable):
