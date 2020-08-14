@@ -5,6 +5,7 @@ import inspect
 import re
 import hashlib
 import requests
+import os
 
 
 class BaseValidation:
@@ -791,6 +792,57 @@ class regex(BaseValidation):
         return "The {} matches pattern {} .".format(attribute, self.pattern)
 
 
+class file(BaseValidation):
+    def __init__(self, validations, size=False, mimes=False, messages={}, raises={}):
+        super().__init__(validations, messages=messages, raises=raises)
+        # parse size into bytes
+        self.size = size
+        # parse mimes into list ?
+        self.mimes = mimes
+        # internal state
+        self.file_check = True
+        self.size_check = True
+        self.mimes_check = True
+        self.all_clear = True
+
+    def passes(self, attribute, key, dictionary):
+        if not os.path.isfile(attribute):
+            self.file_check = False
+            # it does not make sense to continue checks if not a file
+            return False
+        if self.size:
+            file_size = os.path.getsize(attribute)
+            if file_size > self.size:
+                self.size_check = False
+                self.all_clear = False
+        if self.mimes:
+            import mimetypes
+
+            mimetype, encoding = mimetypes.guess_type(attribute)
+            if mimetype not in self.mimes:
+                self.mimes_check = False
+                self.all_clear = False
+
+        return self.all_clear
+
+    def message(self, attribute):
+        messages = []
+        if not self.file_check:
+            messages.append("The {} is not a valid file.".format(attribute))
+        if not self.size_check:
+            # TODO: add better display of file size in message
+            messages.append(
+                "The {} file size exceeds {} bytes.".format(attribute, self.size)
+            )
+        if not self.mimes_check:
+            # should we reprecise allowed mime types ? I guess
+            messages.append("The {} mime type is not valid.".format(attribute))
+        return messages
+
+    def negated_message(self, attribute):
+        pass
+
+
 def flatten(iterable):
 
     flat_list = []
@@ -904,6 +956,7 @@ class ValidationFactory:
             equals,
             email,
             exists,
+            file,
             greater_than,
             in_range,
             is_future,
