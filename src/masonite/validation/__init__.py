@@ -17,6 +17,7 @@ from .Validator import (
     exists,
     file,
     greater_than,
+    image,
     in_range,
     ip,
     is_future,

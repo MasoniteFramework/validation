@@ -793,25 +793,21 @@ class regex(BaseValidation):
         return "The {} matches pattern {} .".format(attribute, self.pattern)
 
 
-class file(BaseValidation):
-    def __init__(self, validations, size=False, mimes=False, messages={}, raises={}):
-        super().__init__(validations, messages=messages, raises=raises)
-        # parse size into bytes
-        from hfilesize import FileSize
+def parse_size(size):
+    """Parse humanized size into bytes"""
+    from hfilesize import FileSize
 
-        self.size = FileSize(size, case_sensitive=False)
-        # parse allowed extensions to a list of mime types
-        # TODO: what if match not found, None for now ...?
-        self.allowed_extensions = mimes
-        if mimes:
-            self.allowed_mimetypes = list(
-                map(lambda mt: mimetypes.types_map.get("." + mt, None), mimes)
-            )
+    return FileSize(size, case_sensitive=False)
+
+
+class BaseFileValidation(BaseValidation):
+    def __init__(self, validations, messages={}, raises={}):
         # internal state
         self.file_check = True
         self.size_check = True
         self.mimes_check = True
         self.all_clear = True
+        super().__init__(validations, messages=messages, raises=raises)
 
     def passes(self, attribute, key, dictionary):
         if not os.path.isfile(attribute):
@@ -828,8 +824,20 @@ class file(BaseValidation):
             if mimetype not in self.allowed_mimetypes:
                 self.mimes_check = False
                 self.all_clear = False
-
         return self.all_clear
+
+
+class file(BaseFileValidation):
+    def __init__(self, validations, size=False, mimes=False, messages={}, raises={}):
+        super().__init__(validations, messages=messages, raises=raises)
+        self.size = parse_size(size)
+        # parse allowed extensions to a list of mime types
+        # TODO: what if match not found, None for now ...?
+        self.allowed_extensions = mimes
+        if mimes:
+            self.allowed_mimetypes = list(
+                map(lambda mt: mimetypes.types_map.get("." + mt, None), mimes)
+            )
 
     def message(self, attribute):
         messages = []
@@ -846,7 +854,7 @@ class file(BaseValidation):
         if not self.mimes_check:
             # should we reprecise allowed mime types ? I guess
             messages.append(
-                "The {} mime type is not valid. Allowed types are {}.".format(
+                "The {} mime type is not valid. Allowed formats are {}.".format(
                     attribute, ",".join(self.allowed_extensions)
                 )
             )
@@ -871,6 +879,55 @@ class file(BaseValidation):
                     attribute, ",".join(self.allowed_extensions)
                 )
             )
+        return messages
+
+
+class image(BaseFileValidation):
+    def __init__(self, validations, size=False, messages={}, raises={}):
+        super().__init__(validations, messages=messages, raises=raises)
+        self.size = parse_size(size)
+        image_mimetypes = {
+            ext: mimetype
+            for ext, mimetype in mimetypes.types_map.items()
+            if mimetype.startswith("image")
+        }
+        self.allowed_extensions = list(image_mimetypes.keys())
+        self.allowed_mimetypes = list(image_mimetypes.values())
+
+    def message(self, attribute):
+        messages = []
+        if not self.file_check:
+            messages.append("The {} is not a valid file.".format(attribute))
+        if not self.size_check:
+            from hfilesize import FileSize
+
+            messages.append(
+                "The {} file size exceeds {:.02fH}.".format(
+                    attribute, FileSize(self.size)
+                )
+            )
+        if not self.mimes_check:
+            messages.append(
+                "The {} file is not a valid image. Allowed formats are {}.".format(
+                    attribute, ",".join(self.allowed_extensions)
+                )
+            )
+        return messages
+
+    def negated_message(self, attribute):
+        messages = []
+        if self.file_check:
+            messages.append("The {} is a valid file.".format(attribute))
+        if self.size_check:
+            from hfilesize import FileSize
+
+            messages.append(
+                "The {} file size is less or equal than {:.02fH}.".format(
+                    attribute, FileSize(self.size)
+                )
+            )
+        if self.mimes_check:
+            messages.append("The {} file is a valid image.".format(attribute))
         return messages
 
 
@@ -989,6 +1046,7 @@ class ValidationFactory:
             exists,
             file,
             greater_than,
+            image,
             in_range,
             is_future,
             is_in,
