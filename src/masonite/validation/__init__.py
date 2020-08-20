@@ -37,5 +37,6 @@ from .Validator import (
     strong,
     timezone,
     truthy,
+    video,
     when,
 )

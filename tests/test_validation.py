@@ -35,6 +35,7 @@ from src.masonite.validation import (
     isnt,
     strong,
     regex,
+    video,
 )
 from src.masonite.validation.Validator import json as vjson
 from src.masonite.validation.Validator import (
@@ -722,35 +723,29 @@ class TestValidation(unittest.TestCase):
         )
 
     def test_image_validation(self):
-        def create_test_image():
-            from pathlib import Path
-
-            filepath = Path("temp/test.png")
-            filepath.parent.mkdir(parents=True, exist_ok=True)
-            return filepath
-
         validate = Validator().validate({"avatar": "a string",}, image(["avatar"]))
 
         self.assertEqual(validate.get("avatar"), ["The avatar is not a valid file."])
+
+        import mimetypes
+
+        image_extensions = [
+            ext for ext, mt in mimetypes.types_map.items() if mt.startswith("image")
+        ]
+
         import os
 
         test_file = os.path.abspath(__file__)  # python file
-        validate = Validator().validate({"avatar": test_file}, image(["avatar"]))
-        import mimetypes
+        validate = Validator().validate({"avatar": test_file,}, image(["avatar"]))
+        self.assertEqual(
+            validate.get("avatar"),
+            [
+                "The avatar file is not a valid image. Allowed formats are {}.".format(
+                    ",".join(image_extensions)
+                )
+            ],
+        )
 
-        # TODO: try to understand why images extensions list is incorrect
-        # in test
-        # image_extensions = [
-        #     ext for ext, mt in mimetypes.types_map.items() if mt.startswith("image")
-        # ]
-        # self.assertEqual(
-        #     validate.get("avatar"),
-        #     [
-        #         "The avatar file is not a valid image. Allowed formats are {}.".format(
-        #             ",".join(image_extensions)
-        #         )
-        #     ],
-        # )
         import tempfile
 
         with tempfile.NamedTemporaryFile(dir="/tmp", suffix=".png") as tmpfile:
@@ -778,6 +773,42 @@ class TestValidation(unittest.TestCase):
             self.assertEqual(
                 validate.get("avatar"), ["The avatar file size exceeds 20 bytes."]
             )
+
+    def test_video_validation(self):
+        validate = Validator().validate({"document": "a string",}, video(["document"]))
+
+        self.assertEqual(
+            validate.get("document"), ["The document is not a valid file."]
+        )
+
+        import mimetypes
+
+        video_extensions = [
+            ext for ext, mt in mimetypes.types_map.items() if mt.startswith("video")
+        ]
+
+        import os
+
+        test_file = os.path.abspath(__file__)  # python file
+        validate = Validator().validate({"document": test_file,}, video(["document"]))
+        self.assertEqual(
+            validate.get("document"),
+            [
+                "The document file is not a valid video. Allowed formats are {}.".format(
+                    ",".join(video_extensions)
+                )
+            ],
+        )
+
+        import tempfile
+
+        with tempfile.NamedTemporaryFile(dir="/tmp", suffix=".mp4") as tmpfile:
+            test_video = tmpfile.name
+            validate = Validator().validate(
+                {"document": test_video}, video(["document"])
+            )
+
+        self.assertEqual(len(validate), 0)
 
 
 class TestDotNotationValidation(unittest.TestCase):

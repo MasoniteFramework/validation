@@ -931,6 +931,55 @@ class image(BaseFileValidation):
         return messages
 
 
+class video(BaseFileValidation):
+    def __init__(self, validations, size=False, messages={}, raises={}):
+        super().__init__(validations, messages=messages, raises=raises)
+        self.size = parse_size(size)
+        video_mimetypes = {
+            ext: mimetype
+            for ext, mimetype in mimetypes.types_map.items()
+            if mimetype.startswith("video")
+        }
+        self.allowed_extensions = list(video_mimetypes.keys())
+        self.allowed_mimetypes = list(video_mimetypes.values())
+
+    def message(self, attribute):
+        messages = []
+        if not self.file_check:
+            messages.append("The {} is not a valid file.".format(attribute))
+        if not self.size_check:
+            from hfilesize import FileSize
+
+            messages.append(
+                "The {} file size exceeds {:.02fH}.".format(
+                    attribute, FileSize(self.size)
+                )
+            )
+        if not self.mimes_check:
+            messages.append(
+                "The {} file is not a valid video. Allowed formats are {}.".format(
+                    attribute, ",".join(self.allowed_extensions)
+                )
+            )
+        return messages
+
+    def negated_message(self, attribute):
+        messages = []
+        if self.file_check:
+            messages.append("The {} is a valid file.".format(attribute))
+        if self.size_check:
+            from hfilesize import FileSize
+
+            messages.append(
+                "The {} file size is less or equal than {:.02fH}.".format(
+                    attribute, FileSize(self.size)
+                )
+            )
+        if self.mimes_check:
+            messages.append("The {} file is a valid video.".format(attribute))
+        return messages
+
+
 def flatten(iterable):
 
     flat_list = []
@@ -1068,6 +1117,7 @@ class ValidationFactory:
             strong,
             timezone,
             truthy,
+            video,
             when,
         )
 
