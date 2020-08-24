@@ -991,6 +991,44 @@ class video(BaseFileValidation):
         return messages
 
 
+class postal_code(BaseValidation):
+    def __init__(self, validations, locale, messages={}, raises={}):
+        super().__init__(validations, messages=messages, raises=raises)
+        from .resources.postal_codes import PATTERNS
+        self.locales = []
+        self.patterns = []
+        self.patterns_example = []
+        self.locales = locale.split(',')
+
+        for locale in self.locales:
+            pattern_dict = PATTERNS.get(locale, None)
+            if pattern_dict is None or pattern_dict["pattern"] is None:
+                raise NotImplementedError(
+                    "Unsupported country code {}. Check that it is a ISO 3166-1 country code or open a PR to require support of this country code.".format(
+                        locale
+                    )
+                )
+            else:
+                self.patterns.append(pattern_dict["pattern"])
+                self.patterns_example.append(pattern_dict["example"])
+
+    def passes(self, attribute, key, dictionary):
+        for pattern in self.patterns:
+            # check that at least one pattern match attribute
+            if re.compile(r"{}".format(pattern)).match(attribute):
+                return True
+        return False
+
+    def message(self, attribute):
+        return "The {} is not a valid {} postal code. Valid {} {}.".format(
+            attribute, ','.join(self.locales), "examples are" if len(self.locales) > 1 else "example is",
+            ','.join(self.patterns_example)
+        )
+
+    def negated_message(self, attribute):
+        return "The {} is a valid {} postal code.".format(attribute, self.locale)
+
+
 def flatten(iterable):
 
     flat_list = []
@@ -1122,6 +1160,7 @@ class ValidationFactory:
             numeric,
             one_of,
             phone,
+            postal_code,
             regex,
             required,
             string,
