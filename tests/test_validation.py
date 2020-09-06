@@ -1,8 +1,7 @@
 import json
 import unittest
 import pytest
-import sys
-
+import platform
 import pendulum
 from masonite.app import App
 from masonite.drivers import SessionCookieDriver
@@ -725,7 +724,7 @@ class TestValidation(unittest.TestCase):
         )
 
     @pytest.mark.skipif(
-        sys.version_info < (3, 5),
+        int(platform.python_version_tuple()[1]) < 6,
         reason="python 3.5 mimetype modules breaks test but validation rule is ok",
     )
     def test_image_validation(self):
@@ -781,7 +780,7 @@ class TestValidation(unittest.TestCase):
             )
 
     @pytest.mark.skipif(
-        sys.version_info < (3, 5),
+        int(platform.python_version_tuple()[1]) < 6,
         reason="python 3.5 mimetype modules breaks test but validation rule is ok",
     )
     def test_video_validation(self):
