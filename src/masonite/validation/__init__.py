@@ -15,7 +15,9 @@ from .Validator import (
     email,
     equals,
     exists,
+    file,
     greater_than,
+    image,
     in_range,
     ip,
     is_future,
@@ -35,5 +37,6 @@ from .Validator import (
     strong,
     timezone,
     truthy,
+    video,
     when,
 )

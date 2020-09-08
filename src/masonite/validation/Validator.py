@@ -5,6 +5,8 @@ import inspect
 import re
 import hashlib
 import requests
+import os
+import mimetypes
 
 
 class BaseValidation:
@@ -791,6 +793,193 @@ class regex(BaseValidation):
         return "The {} matches pattern {} .".format(attribute, self.pattern)
 
 
+def parse_size(size):
+    """Parse humanized size into bytes"""
+    from hfilesize import FileSize
+
+    return FileSize(size, case_sensitive=False)
+
+
+class BaseFileValidation(BaseValidation):
+    def __init__(self, validations, messages={}, raises={}):
+        # internal state
+        self.file_check = True
+        self.size_check = True
+        self.mimes_check = True
+        self.all_clear = True
+        super().__init__(validations, messages=messages, raises=raises)
+
+    def passes(self, attribute, key, dictionary):
+        if not os.path.isfile(attribute):
+            self.file_check = False
+            # it does not make sense to continue checks if not a file
+            return False
+        if self.size:
+            file_size = os.path.getsize(attribute)
+            if file_size > self.size:
+                self.size_check = False
+                self.all_clear = False
+        if self.allowed_extensions:
+            mimetype, encoding = mimetypes.guess_type(attribute)
+            if mimetype not in self.allowed_mimetypes:
+                self.mimes_check = False
+                self.all_clear = False
+        return self.all_clear
+
+
+class file(BaseFileValidation):
+    def __init__(self, validations, size=False, mimes=False, messages={}, raises={}):
+        super().__init__(validations, messages=messages, raises=raises)
+        self.size = parse_size(size)
+        # parse allowed extensions to a list of mime types
+        # TODO: what if match not found, None for now ...?
+        self.allowed_extensions = mimes
+        if mimes:
+            self.allowed_mimetypes = list(
+                map(lambda mt: mimetypes.types_map.get("." + mt, None), mimes)
+            )
+
+    def message(self, attribute):
+        messages = []
+        if not self.file_check:
+            messages.append("The {} is not a valid file.".format(attribute))
+        if not self.size_check:
+            from hfilesize import FileSize
+
+            messages.append(
+                "The {} file size exceeds {:.02fH}.".format(
+                    attribute, FileSize(self.size)
+                )
+            )
+        if not self.mimes_check:
+            # should we reprecise allowed mime types ? I guess
+            messages.append(
+                "The {} mime type is not valid. Allowed formats are {}.".format(
+                    attribute, ",".join(self.allowed_extensions)
+                )
+            )
+        return messages
+
+    def negated_message(self, attribute):
+        messages = []
+        if self.file_check:
+            messages.append("The {} is a valid file.".format(attribute))
+        if self.size_check:
+            from hfilesize import FileSize
+
+            messages.append(
+                "The {} file size is less or equal than {:.02fH}.".format(
+                    attribute, FileSize(self.size)
+                )
+            )
+        if self.mimes_check:
+            # should we reprecise allowed mime types ? I guess
+            messages.append(
+                "The {} mime type is in {}.".format(
+                    attribute, ",".join(self.allowed_extensions)
+                )
+            )
+        return messages
+
+
+class image(BaseFileValidation):
+    def __init__(self, validations, size=False, messages={}, raises={}):
+        super().__init__(validations, messages=messages, raises=raises)
+        self.size = parse_size(size)
+        image_mimetypes = {
+            ext: mimetype
+            for ext, mimetype in mimetypes.types_map.items()
+            if mimetype.startswith("image")
+        }
+        self.allowed_extensions = list(image_mimetypes.keys())
+        self.allowed_mimetypes = list(image_mimetypes.values())
+
+    def message(self, attribute):
+        messages = []
+        if not self.file_check:
+            messages.append("The {} is not a valid file.".format(attribute))
+        if not self.size_check:
+            from hfilesize import FileSize
+
+            messages.append(
+                "The {} file size exceeds {:.02fH}.".format(
+                    attribute, FileSize(self.size)
+                )
+            )
+        if not self.mimes_check:
+            messages.append(
+                "The {} file is not a valid image. Allowed formats are {}.".format(
+                    attribute, ",".join(self.allowed_extensions)
+                )
+            )
+        return messages
+
+    def negated_message(self, attribute):
+        messages = []
+        if self.file_check:
+            messages.append("The {} is a valid file.".format(attribute))
+        if self.size_check:
+            from hfilesize import FileSize
+
+            messages.append(
+                "The {} file size is less or equal than {:.02fH}.".format(
+                    attribute, FileSize(self.size)
+                )
+            )
+        if self.mimes_check:
+            messages.append("The {} file is a valid image.".format(attribute))
+        return messages
+
+
+class video(BaseFileValidation):
+    def __init__(self, validations, size=False, messages={}, raises={}):
+        super().__init__(validations, messages=messages, raises=raises)
+        self.size = parse_size(size)
+        video_mimetypes = {
+            ext: mimetype
+            for ext, mimetype in mimetypes.types_map.items()
+            if mimetype.startswith("video")
+        }
+        self.allowed_extensions = list(video_mimetypes.keys())
+        self.allowed_mimetypes = list(video_mimetypes.values())
+
+    def message(self, attribute):
+        messages = []
+        if not self.file_check:
+            messages.append("The {} is not a valid file.".format(attribute))
+        if not self.size_check:
+            from hfilesize import FileSize
+
+            messages.append(
+                "The {} file size exceeds {:.02fH}.".format(
+                    attribute, FileSize(self.size)
+                )
+            )
+        if not self.mimes_check:
+            messages.append(
+                "The {} file is not a valid video. Allowed formats are {}.".format(
+                    attribute, ",".join(self.allowed_extensions)
+                )
+            )
+        return messages
+
+    def negated_message(self, attribute):
+        messages = []
+        if self.file_check:
+            messages.append("The {} is a valid file.".format(attribute))
+        if self.size_check:
+            from hfilesize import FileSize
+
+            messages.append(
+                "The {} file size is less or equal than {:.02fH}.".format(
+                    attribute, FileSize(self.size)
+                )
+            )
+        if self.mimes_check:
+            messages.append("The {} file is a valid video.".format(attribute))
+        return messages
+
+
 def flatten(iterable):
 
     flat_list = []
@@ -904,7 +1093,9 @@ class ValidationFactory:
             equals,
             email,
             exists,
+            file,
             greater_than,
+            image,
             in_range,
             is_future,
             is_in,
@@ -920,11 +1111,13 @@ class ValidationFactory:
             numeric,
             one_of,
             phone,
+            regex,
             required,
             string,
             strong,
             timezone,
             truthy,
+            video,
             when,
         )
 
