@@ -952,7 +952,7 @@ class video(BaseFileValidation):
         messages = []
         if not self.file_check:
             messages.append("The {} is not a valid file.".format(attribute))
- 
+
         if not self.size_check:
             from hfilesize import FileSize
 
