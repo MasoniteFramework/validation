@@ -643,6 +643,19 @@ class TestValidation(unittest.TestCase):
 
         self.assertEqual(len(validate), 0)
 
+    def test_list_validation(self):
+        validate = Validator().validate(
+            {"name": "Joe", "discounts_ref": [1, 2, 3]}, is_list(["discounts_ref.*"]),
+        )
+
+        self.assertEqual(len(validate), 0)
+
+        validate = Validator().validate(
+            {"name": "Joe", "discounts_ref": {1: 2}}, is_list(["discounts_ref.*"]),
+        )
+
+        self.assertEqual(len(validate), 1)
+
     def test_postal_code(self):
         validate = Validator().validate(
             {"postal_code": "not a post code", }, postal_code(["postal_code"], "FR")
