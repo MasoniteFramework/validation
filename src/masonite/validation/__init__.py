@@ -31,6 +31,7 @@ from .Validator import (
     none,
     numeric,
     phone,
+    postal_code,
     regex,
     required,
     string,

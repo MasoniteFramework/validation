@@ -34,6 +34,7 @@ from src.masonite.validation import (
     is_in,
     is_past,
     isnt,
+    postal_code,
     strong,
     regex,
     video,
@@ -613,7 +614,7 @@ class TestValidation(unittest.TestCase):
 
     def test_regex(self):
         validate = Validator().validate(
-            {"username": "masonite_user_1",}, regex(["username"], "^[a-z0-9_-]{3,16}$")
+            {"username": "masonite_user_1", }, regex(["username"], "^[a-z0-9_-]{3,16}$")
         )
         self.assertEqual(len(validate), 0)
 
@@ -655,8 +656,48 @@ class TestValidation(unittest.TestCase):
 
         self.assertEqual(len(validate), 1)
 
+    def test_postal_code(self):
+        validate = Validator().validate(
+            {"postal_code": "not a post code", }, postal_code(["postal_code"], "FR")
+        )
+        self.assertEqual(
+            validate.get("postal_code"),
+            ["The postal_code is not a valid FR postal code. Valid example is 33380."],
+        )
+
+        validate = Validator().validate(
+            {"postal_code": "44000", }, postal_code(["postal_code"], "FR")
+        )
+        self.assertEqual(len(validate), 0)
+
+    def test_multiple_countries_for_postal_code(self):
+        valid_postal_codes = ["EC1Y 8SY", "44000", "87832"]  # gb, fr, us
+        for code in valid_postal_codes:
+            validate = Validator().validate(
+                {"postal_code": code, }, postal_code(["postal_code"], "FR,GB,US")
+            )
+            self.assertEqual(len(validate), 0)
+
+        validate = Validator().validate(
+        {"postal_code": "4430", }, postal_code(["postal_code"], "FR,GB,US")
+        )
+        self.assertEqual(
+            validate.get("postal_code"),
+            ["The postal_code is not a valid FR,GB,US postal code. Valid examples are 33380,EC1Y 8SY,95014."],
+        )
+
+    def test_not_implemented_country_postal_code(self):
+        try:
+            validate = Validator().validate(
+                {"postal_code": "90988", }, postal_code(["postal_code"], "XX")
+            )
+        except NotImplementedError as e:
+            self.assertEqual(str(e),
+                             "Unsupported country code XX. Check that it is a ISO 3166-1 country code or open a PR to require support of this country code.")
+
+
     def test_file_validation(self):
-        validate = Validator().validate({"document": "a string",}, file(["document"]))
+        validate = Validator().validate({"document": "a string", }, file(["document"]))
 
         self.assertEqual(
             validate.get("document"), ["The document is not a valid file."]
