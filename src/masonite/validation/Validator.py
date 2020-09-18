@@ -567,7 +567,7 @@ class strong(BaseValidation):
     def passes(self, attribute, key, dictionary):
         all_clear = True
 
-        if len(attribute) <= self.length:
+        if len(attribute) < self.length:
             all_clear = False
             self.length_check = False
 

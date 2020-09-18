@@ -1067,7 +1067,7 @@ class TestValidationProvider(TestCase):
         self.assertTrue(self.app.make(Validator).numeric)
 
     def test_request_validation(self):
-        request = self.app.make("Request")
+        request = self.app.make("Request").load_app(self.app)
         validate = self.app.make("Validator")
 
         request.request_variables = {"id": 1, "name": "Joe"}
@@ -1184,11 +1184,22 @@ class TestValidationProvider(TestCase):
         self.assertIn(
             "The password field must be 8 characters in length", password_validation
         )
+
         self.assertIn(
             "The password field must have 2 uppercase letters", password_validation
         )
+
         self.assertIn(
             "The password field must have 2 special characters", password_validation
+        )
+
+        validate = Validator().validate(
+            {"password": "secret!!",},
+            strong(["password"], length=8, uppercase=0, special=2, numbers=0),
+        )
+
+        self.assertEqual(
+            len(validate.all()), 0,
         )
 
     def test_strong_breach(self):
