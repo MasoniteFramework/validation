@@ -1138,6 +1138,25 @@ class TestValidationProvider(TestCase):
 
         self.assertEqual(validated.all(), {"user": ["The user field is required."]})
 
+    def test_file_request_validation(self):
+        import os
+        request = self.app.make("Request").load_app(self.app)
+        validate = self.app.make("Validator")
+        request.request_variables = {"image": os.path.abspath(__file__)}
+
+        validated = request.validate(validate.file(["image"]))
+        self.assertEqual(len(validated), 0)
+
+        import io
+        from cgi import FieldStorage
+        fp = io.TextIOWrapper(io.BytesIO())
+        fp.write("Some text in the file")
+        fileitem = FieldStorage(fp)
+        fileitem.read_binary()
+        request.request_variables = {"image": fileitem}
+        validated = request.validate(validate.file(["image"]))
+        self.assertEqual(len(validated), 0)
+        
     def test_request_validation_redirects_back_with_session(self):
         wsgi = generate_wsgi()
         self.app.bind("Application", self.app)
