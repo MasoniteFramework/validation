@@ -708,6 +708,23 @@ class TestValidation(unittest.TestCase):
         validate = Validator().validate({"document": test_file}, file(["document"]))
         self.assertEqual(len(validate), 0)
 
+    def test_different_file_objects(self):
+        """Test that validator can handle different Python file objects. For 
+        example the one returned in Masonite requests.
+        """
+        # prepare a FieldStorage instance to simulate file from POST requests
+        import io
+        from cgi import FieldStorage
+        fp = io.TextIOWrapper(io.BytesIO())
+        fp.write("Some text in the file")
+        fileitem = FieldStorage(fp)
+        fileitem.read_binary()
+
+        validate = Validator().validate({
+            "document": fileitem
+        }, file(["document"]))
+        self.assertEqual(len(validate), 0)
+
     def test_file_size_validation(self):
         import os
 
