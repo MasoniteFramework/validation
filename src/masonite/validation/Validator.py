@@ -1029,6 +1029,46 @@ class postal_code(BaseValidation):
         return "The {} is a valid {} postal code.".format(attribute, self.locale)
 
 
+def parse_table(table_name, column="id"):
+    import importlib
+    if "." in table_name:
+        m = importlib.import_module(table_name)
+        # get model
+        model_name = table_name.split(".")[-1]
+        model = getattr(m, model_name)
+        table = model().get_table()
+        return table, model
+    else:
+        return table_name, None
+
+
+class exists_in_db(BaseValidation):
+    def __init__(self, validations, table, column=None, messages={}, raises={}):
+        super().__init__(validations, messages=messages, raises=raises)
+        # retrieving db connection will totally change with new ORM
+        # in addition, below is not really satisfying
+        from masonite.helpers import config
+        self.connection = config("database.db")
+        self.column = column
+        self.table, self.model = parse_table(table)
+
+    def passes(self, attribute, key, dictionary):
+        column = key if not self.column else self.column
+        import pdb 
+        pdb.set_trace()
+        result = self.connection.table(self.table).where(column, attribute).pluck(column)
+        if result:
+            return True
+        else:
+            return False
+
+    def message(self, attribute):
+        return "does not exist"
+
+    def negated_message(self, attribute):
+        return "exists"
+
+
 def flatten(iterable):
 
     flat_list = []
@@ -1142,6 +1182,7 @@ class ValidationFactory:
             equals,
             email,
             exists,
+            exists_in_db,
             file,
             greater_than,
             image,

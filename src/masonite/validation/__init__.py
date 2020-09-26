@@ -15,6 +15,7 @@ from .Validator import (
     email,
     equals,
     exists,
+    exists_in_db,
     file,
     greater_than,
     image,

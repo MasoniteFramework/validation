@@ -24,6 +24,7 @@ from src.masonite.validation import (
     email,
     equals,
     exists,
+    exists_in_db,
     file,
     greater_than,
     image,
@@ -54,6 +55,7 @@ from src.masonite.validation.Validator import (
     truthy,
     when,
 )
+from src.masonite.validation.Validator import parse_table
 
 
 class TestValidation(unittest.TestCase):
@@ -859,6 +861,31 @@ class TestValidation(unittest.TestCase):
             )
 
         self.assertEqual(len(validate), 0)
+
+    def test_exists_in_db(self):
+        from app.User import User
+        user = User.create(name="Sam", email="sam@masonite.com", password="test")
+        validate = Validator().validate(
+            {"email": "sam@masonite.com"}, exists_in_db(["email"], "users")
+        )
+        self.assertEqual(len(validate), 0)
+        validate = Validator().validate(
+            {"email": "john@masonite.com"}, exists_in_db(["email"], "users")
+        )
+        self.assertEqual(validate.get("email"), ["does not exist"])
+
+        validate = Validator().validate(
+            {"first_name": "Sam"}, exists_in_db(["first_name"], "users", "name"),
+        )
+        self.assertEqual(len(validate), 0)
+        validate = Validator().validate(
+            {"email": "joe@masonite.com"}, exists_in_db(["email"], "app.User")
+        )
+        self.assertEqual(validate.get("email"), ["does not exist"])
+        user.delete()
+        # table = parse_table("users")
+        # table = parse_table("app.User")
+        # table = parse_table("users", column="name")
 
 
 class TestDotNotationValidation(unittest.TestCase):
