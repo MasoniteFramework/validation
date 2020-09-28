@@ -1029,6 +1029,22 @@ class postal_code(BaseValidation):
         return "The {} is a valid {} postal code.".format(attribute, self.locale)
 
 
+class different(BaseValidation):
+    def __init__(self, validations, other_field, messages={}, raises={}):
+        super().__init__(validations, messages=messages, raises=raises)
+        self.other_field = other_field
+
+    def passes(self, attribute, key, dictionary):
+        other_value = dictionary.get(self.other_field, None)
+        return attribute != other_value
+
+    def message(self, attribute):
+        return "The {} value must be different than {} value.".format(attribute, self.other_field)
+
+    def negated_message(self, attribute):
+        return "The {} value be the same as {} value.".format(attribute, self.other_field)
+
+
 def flatten(iterable):
 
     flat_list = []
@@ -1139,6 +1155,7 @@ class ValidationFactory:
             contains,
             date,
             does_not,
+            different,
             equals,
             email,
             exists,

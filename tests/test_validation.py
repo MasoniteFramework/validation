@@ -20,6 +20,7 @@ from src.masonite.validation import (
     confirmed,
     contains,
     date,
+    different,
     does_not,
     email,
     equals,
@@ -859,6 +860,29 @@ class TestValidation(unittest.TestCase):
             )
 
         self.assertEqual(len(validate), 0)
+
+    def test_different(self):
+        validate = Validator().validate({
+            "field_1": "value_1",
+            "field_2": "value_2"
+        }, different(["field_1"], "field_2"))
+        self.assertEqual(len(validate), 0)
+
+        validate = Validator().validate({
+            "field_1": "value_1",
+            "field_2": "value_1"
+        }, different(["field_1"], "field_2"))
+        self.assertEqual(
+            validate.get("field_1"), ["The field_1 value must be different than field_2 value."]
+        )
+
+        validate = Validator().validate({
+            "field_1": None,
+            "field_2": None
+        }, different(["field_1"], "field_2"))
+        self.assertEqual(
+            validate.get("field_1"), ["The field_1 value must be different than field_2 value."]
+        )
 
 
 class TestDotNotationValidation(unittest.TestCase):

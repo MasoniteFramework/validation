@@ -11,6 +11,7 @@ from .Validator import (
     confirmed,
     contains,
     date,
+    different,
     does_not,
     email,
     equals,
