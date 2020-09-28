@@ -3,6 +3,7 @@ import unittest
 import pytest
 import platform
 import pendulum
+from uuid import uuid1, uuid3, uuid4, uuid5
 from masonite.app import App
 from masonite.drivers import SessionCookieDriver
 from masonite.managers import SessionManager
@@ -38,6 +39,7 @@ from src.masonite.validation import (
     postal_code,
     strong,
     regex,
+    uuid,
     video,
 )
 from src.masonite.validation.Validator import json as vjson
@@ -883,6 +885,59 @@ class TestValidation(unittest.TestCase):
         self.assertEqual(
             validate.get("field_1"), ["The field_1 value must be different than field_2 value."]
         )
+
+    def test_all_uuid_versions_are_considered_valid(self):
+        from uuid import NAMESPACE_DNS
+        u3 = uuid3(NAMESPACE_DNS, "domain.com")
+        u5 = uuid5(NAMESPACE_DNS, "domain.com")
+        for uuid_value in [uuid1(), u3, uuid4(), u5]:
+            validate = Validator().validate({
+                "document_id": uuid_value,
+            }, uuid(["document_id"]))
+            self.assertEqual(len(validate), 0)
+
+    def test_unvalid_uuid_values(self):
+        for uuid_value in [None, [], True, "", "uuid", {"uuid": "nope"}, 3, ()]:
+            validate = Validator().validate({
+                "document_id": uuid_value,
+            }, uuid(["document_id"]))
+            self.assertEqual(
+                validate.get("document_id"), ["The document_id value must be a valid UUID."]
+            )
+
+    def test_uuid_rule_with_specified_versions(self):
+        from uuid import NAMESPACE_DNS
+        u3 = uuid3(NAMESPACE_DNS, "domain.com")
+        u5 = uuid5(NAMESPACE_DNS, "domain.com")
+        for version, uuid_value in [(1, uuid1()), (3, u3), (4, uuid4()), (5, u5)]:
+            validate = Validator().validate({
+                "document_id": uuid_value,
+            }, uuid(["document_id"], version))
+            self.assertEqual(len(validate), 0)
+
+    def test_invalid_uuid_rule_with_specified_versions(self):
+        for version in [1, 2, 3, 5]:
+            validate = Validator().validate({
+                "document_id": uuid4(),
+            }, uuid(["document_id"], version))
+            self.assertEqual(
+                validate.get("document_id"), ["The document_id value must be a valid UUID {0}.".format(version)]
+            )
+
+    def test_uuid_version_can_be_str_or_int(self):
+        uuid_value = uuid4()
+        for version in [4, "4"]:
+            validate = Validator().validate({
+                "document_id": uuid_value,
+            }, uuid(["document_id"], version))
+            self.assertEqual(len(validate), 0)
+        for version in [3, "3"]:
+            validate = Validator().validate({
+                "document_id": uuid_value,
+            }, uuid(["document_id"], version))
+            self.assertEqual(
+                validate.get("document_id"), ["The document_id value must be a valid UUID 3."]
+            )
 
 
 class TestDotNotationValidation(unittest.TestCase):

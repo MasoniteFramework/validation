@@ -1045,6 +1045,32 @@ class different(BaseValidation):
         return "The {} value be the same as {} value.".format(attribute, self.other_field)
 
 
+class uuid(BaseValidation):
+    def __init__(self, validations, version=None, messages={}, raises={}):
+        super().__init__(validations, messages=messages, raises=raises)
+        self.version = version
+        self.uuid_type = "UUID"
+        if version:
+            self.uuid_type = "UUID {0}".format(self.version)
+
+    def passes(self, attribute, key, dictionary):
+        from uuid import UUID
+        try:
+            uuid_value = UUID(str(attribute))
+            if self.version:
+                return uuid_value.version == int(self.version)
+            else:
+                return True
+        except ValueError:
+            return False
+
+    def message(self, attribute):
+        return "The {} value must be a valid {}.".format(attribute, self.uuid_type)
+
+    def negated_message(self, attribute):
+        return "The {} value must not be a valid {}.".format(attribute, self.uuid_type)
+
+
 def flatten(iterable):
 
     flat_list = []
@@ -1184,6 +1210,7 @@ class ValidationFactory:
             strong,
             timezone,
             truthy,
+            uuid,
             video,
             when,
         )
