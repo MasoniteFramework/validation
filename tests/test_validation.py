@@ -74,6 +74,11 @@ class TestValidation(unittest.TestCase):
 
         self.assertEqual(len(validate), 0)
 
+    def test_required_with_non_truthy_values(self):
+        for falsy_value in [[], {}, "", False, 0]:
+            validate = Validator().validate({"user": falsy_value}, required(["user"]))
+            self.assertEqual(validate.get("user"), ["The user field is required."])
+
     def test_can_validate_null_values(self):
         validate = Validator().validate({"test": None}, length(["test"], min=2, max=5))
 
