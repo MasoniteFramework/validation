@@ -53,6 +53,7 @@ from src.masonite.validation.Validator import (
     phone,
     required,
     required_if,
+    required_with,
     string,
     timezone,
     truthy,
@@ -976,6 +977,46 @@ class TestValidation(unittest.TestCase):
         }, required_if(["last_name"], "first_name", "Joe")) 
         self.assertEqual(len(validate), 0)
 
+    def test_required_with_rule(self):
+        validate = Validator().validate({
+            "first_name": "Sam",
+            "last_name": "Gamji",
+            "email": "samgamji@loftr.com"
+        }, required_with(["email"], ["first_name", "last_name" "nick_name"])) 
+        self.assertEqual(len(validate), 0)
+        validate = Validator().validate({
+            "first_name": "Sam",
+            "email": "samgamji@loftr.com"
+        }, required_with(["email"], "first_name")) 
+        self.assertEqual(len(validate), 0)
+        validate = Validator().validate({
+            "first_name": "Sam",
+            "email": ""
+        }, required_with(["email"], "first_name")) 
+        self.assertEqual(
+            validate.get("email"), ["The email is required because first_name is present."]
+        )
+        validate = Validator().validate({
+            "first_name": "Sam",
+            "email": ""
+        }, required_with(["email"], "first_name,nick_name"))
+        self.assertEqual(
+            validate.get("email"), ["The email is required because one in first_name,nick_name is present."]
+        )
+
+    def test_required_with_rule_with_comma_separated_fields(self):
+        validate = Validator().validate({
+            "nick_name": "Sam",
+            "email": "samgamji@loftr.com"
+        }, required_with(["email"], "first_name,last_name,nick_name"))
+        self.assertEqual(len(validate), 0)
+        validate = Validator().validate({
+            "nick_name": "Sam",
+        }, required_with(["email"], "first_name,nick_name"))
+        self.assertEqual(
+            validate.get("email"), ["The email is required because one in first_name,nick_name is present."]
+        )
+
 
 class TestDotNotationValidation(unittest.TestCase):
     def setUp(self):
@@ -1405,3 +1446,32 @@ class TestDictValidation(unittest.TestCase):
         )
 
         self.assertEqual(len(validate), 0)
+
+    def test_required_with_string_validation(self):
+        validate = Validator().validate({
+            "first_name": "Sam",
+            "email": "samgamji@loftr.com"
+        },
+        {
+            "email": "required_with:first_name,last_name"
+        })
+        self.assertEqual(len(validate), 0)
+        # with one argument
+        validate = Validator().validate({
+            "email": ""
+        },
+        {
+            "email": "required_with:first_name"
+        })
+        self.assertEqual(len(validate), 0)
+        validate = Validator().validate({
+            "first_name": "Sam",
+            "email": ""
+        },
+        {
+            "email": "required_with:first_name,nick_name"
+        })
+        self.assertIn(
+            "The email is required because one in first_name,nick_name is present.",
+            validate.get("email"),
+        )

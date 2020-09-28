@@ -1081,8 +1081,6 @@ class required_if(BaseValidation):
 
     def passes(self, attribute, key, dictionary):
         if dictionary.get(self.other_field, None) == self.value:
-            import pdb
-            pdb.set_trace()
             return required.passes(self, attribute, key, dictionary)
         else:
             return True
@@ -1093,6 +1091,42 @@ class required_if(BaseValidation):
     def negated_message(self, attribute):
         return "The {} is not required because {}={} or {} is not present.".format(
             attribute, self.other_field, self.value, self.other_field
+        )
+
+
+class required_with(BaseValidation):
+    """The field under validation must be present and not empty only 
+    if any of the other specified fields are present."""
+
+    def __init__(self, validations, other_fields, messages={}, raises={}):
+        super().__init__(validations, messages=messages, raises=raises)
+        if not isinstance(other_fields, list):
+            if "," in other_fields:
+                self.other_fields = other_fields.split(",")
+            else:
+                self.other_fields = [other_fields]
+        else:
+            self.other_fields = other_fields
+
+    def passes(self, attribute, key, dictionary):
+        for field in self.other_fields:
+            if field in dictionary:
+                return required.passes(self, attribute, key, dictionary)
+        else:
+            return True
+
+    def message(self, attribute):
+        fields = ",".join(self.other_fields)
+        return "The {} is required because {} is present.".format(
+            attribute,
+            "one in {}".format(fields) if len(self.other_fields) > 1 else self.other_fields[0],
+        )
+
+    def negated_message(self, attribute):
+        return "The {} is not required because {} {} is not present.".format(
+            attribute,
+            "none of" if len(self.other_fields) > 1 else "",
+            ",".join(self.other_fields)
         )
 
 
@@ -1232,6 +1266,7 @@ class ValidationFactory:
             regex,
             required,
             required_if,
+            required_with,
             string,
             strong,
             timezone,
