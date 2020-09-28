@@ -96,7 +96,8 @@ class required(BaseValidation):
         Returns:
             bool
         """
-        return attribute or key in dictionary
+        # return attribute or key in dictionary
+        return key in dictionary and attribute
 
     def message(self, key):
         """A message to show when this rule fails
@@ -1071,6 +1072,30 @@ class uuid(BaseValidation):
         return "The {} value must not be a valid {}.".format(attribute, self.uuid_type)
 
 
+class required_if(BaseValidation):
+
+    def __init__(self, validations, other_field, value, messages={}, raises={}):
+        super().__init__(validations, messages=messages, raises=raises)
+        self.other_field = other_field
+        self.value = value
+
+    def passes(self, attribute, key, dictionary):
+        if dictionary.get(self.other_field, None) == self.value:
+            import pdb
+            pdb.set_trace()
+            return required.passes(self, attribute, key, dictionary)
+        else:
+            return True
+
+    def message(self, attribute):
+        return "The {} is required because {}={}.".format(attribute, self.other_field, self.value)
+
+    def negated_message(self, attribute):
+        return "The {} is not required because {}={} or {} is not present.".format(
+            attribute, self.other_field, self.value, self.other_field
+        )
+
+
 def flatten(iterable):
 
     flat_list = []
@@ -1206,6 +1231,7 @@ class ValidationFactory:
             postal_code,
             regex,
             required,
+            required_if,
             string,
             strong,
             timezone,

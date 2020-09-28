@@ -52,6 +52,7 @@ from src.masonite.validation.Validator import (
     one_of,
     phone,
     required,
+    required_if,
     string,
     timezone,
     truthy,
@@ -938,6 +939,37 @@ class TestValidation(unittest.TestCase):
             self.assertEqual(
                 validate.get("document_id"), ["The document_id value must be a valid UUID 3."]
             )
+
+    def test_required_if_rule_when_other_field_is_present(self):
+        validate = Validator().validate({
+            "first_name": "Sam",
+            "last_name": "Gamji"
+        }, required_if(["last_name"], "first_name", "Sam")) 
+        self.assertEqual(len(validate), 0)
+        validate = Validator().validate({
+            "first_name": "Sam",
+            "last_name": ""
+        }, required_if(["last_name"], "first_name", "Sam")) 
+        self.assertEqual(
+            validate.get("last_name"), ["The last_name is required because first_name=Sam."]
+        )
+        validate = Validator().validate({
+            "first_name": "Sam",
+            "last_name": ""
+        }, required_if(["last_name"], "first_name", "Joe")) 
+        self.assertEqual(len(validate), 0)
+
+    def test_required_if_rule_when_other_field_is_not_present(self):
+        validate = Validator().validate({
+            "first_name": "Sam",
+        }, required_if(["last_name"], "first_name", "Sam")) 
+        self.assertEqual(
+            validate.get("last_name"), ["The last_name is required because first_name=Sam."]
+        )
+        validate = Validator().validate({
+            "first_name": "Sam",
+        }, required_if(["last_name"], "first_name", "Joe")) 
+        self.assertEqual(len(validate), 0)
 
 
 class TestDotNotationValidation(unittest.TestCase):
