@@ -85,19 +85,18 @@ class required(BaseValidation):
     def passes(self, attribute, key, dictionary):
         """The passing criteria for this rule.
 
-        This should return a True boolean value.
+        The key must exist in the dictionary and return a True boolean value.
+        The key can use * notation.
 
         Arguments:
             attribute {mixed} -- The value found within the dictionary
             key {string} -- The key in the dictionary being searched for.
-                            This key may or may not exist in the dictionary.
             dictionary {dict} -- The dictionary being searched
 
         Returns:
             bool
         """
-        # return attribute or key in dictionary
-        return key in dictionary and attribute
+        return self.find(key, dictionary) and attribute
 
     def message(self, key):
         """A message to show when this rule fails
@@ -1073,7 +1072,8 @@ class uuid(BaseValidation):
 
 
 class required_if(BaseValidation):
-
+    """The field under validation must be present and not empty only 
+    if an other field has a given value."""
     def __init__(self, validations, other_field, value, messages={}, raises={}):
         super().__init__(validations, messages=messages, raises=raises)
         self.other_field = other_field
