@@ -22,6 +22,7 @@ from src.masonite.validation import (
     contains,
     date,
     different,
+    distinct,
     does_not,
     email,
     equals,
@@ -1015,6 +1016,44 @@ class TestValidation(unittest.TestCase):
         }, required_with(["email"], "first_name,nick_name"))
         self.assertEqual(
             validate.get("email"), ["The email is required because one in first_name,nick_name is present."]
+        )
+
+    def test_distinct(self):
+        validate = Validator().validate({
+            "users": [
+                {
+                    "first_name": "John",
+                    "last_name": "Masonite",
+                },
+                {
+                    "first_name": "Joe",
+                    "last_name": "Masonite",
+                }
+            ]
+        }, distinct(["users.*.last_name"]))
+        self.assertEqual(
+            validate.get("users.*.last_name"), ["The users.*.last_name field has duplicate values."]
+        )
+        validate = Validator().validate({
+            "users": [
+                {
+                    "id": 1,
+                    "name": "John",
+                },
+                {
+                    "id": 2,
+                    "name": "Nick",
+                }
+            ]
+        }, distinct(["users.*.id"]))
+        self.assertEqual(len(validate), 0)
+
+    def test_distinct_with_simple_list(self):
+        validate = Validator().validate({
+            "emails": ["john@masonite.com", "joe@masonite.com", "john@masonite.com"]
+        }, distinct(["emails"]))
+        self.assertEqual(
+            validate.get("emails"), ["The emails field has duplicate values."]
         )
 
 

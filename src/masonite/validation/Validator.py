@@ -1133,6 +1133,24 @@ class required_with(BaseValidation):
         )
 
 
+class distinct(BaseValidation):
+    """When working with list, the field under validation must not have any
+    duplicate values."""
+
+    def passes(self, attribute, key, dictionary):
+        # check if list contains duplicates
+        if len(set(attribute)) != len(attribute):
+            return False
+        else:
+            return True
+
+    def message(self, attribute):
+        return "The {} field has duplicate values.".format(attribute)
+
+    def negated_message(self, attribute):
+        return "The {} field has only different values.".format(attribute)
+
+
 def flatten(iterable):
 
     flat_list = []
@@ -1244,6 +1262,7 @@ class ValidationFactory:
             date,
             does_not,
             different,
+            distinct,
             equals,
             email,
             exists,

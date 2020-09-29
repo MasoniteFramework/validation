@@ -12,6 +12,7 @@ from .Validator import (
     contains,
     date,
     different,
+    distinct,
     does_not,
     email,
     equals,
