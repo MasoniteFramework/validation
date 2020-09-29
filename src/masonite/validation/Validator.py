@@ -1030,6 +1030,7 @@ class postal_code(BaseValidation):
 
 
 class different(BaseValidation):
+    """The field under validation must be different than an other given field."""
     def __init__(self, validations, other_field, messages={}, raises={}):
         super().__init__(validations, messages=messages, raises=raises)
         self.other_field = other_field
@@ -1046,6 +1047,8 @@ class different(BaseValidation):
 
 
 class uuid(BaseValidation):
+    """The field under validation must be a valid UUID. The UUID version standard
+    can be precised (1,3,4,5)."""
     def __init__(self, validations, version=None, messages={}, raises={}):
         super().__init__(validations, messages=messages, raises=raises)
         self.version = version
@@ -1072,7 +1075,7 @@ class uuid(BaseValidation):
 
 
 class required_if(BaseValidation):
-    """The field under validation must be present and not empty only 
+    """The field under validation must be present and not empty only
     if an other field has a given value."""
     def __init__(self, validations, other_field, value, messages={}, raises={}):
         super().__init__(validations, messages=messages, raises=raises)
@@ -1095,7 +1098,7 @@ class required_if(BaseValidation):
 
 
 class required_with(BaseValidation):
-    """The field under validation must be present and not empty only 
+    """The field under validation must be present and not empty only
     if any of the other specified fields are present."""
 
     def __init__(self, validations, other_fields, messages={}, raises={}):
