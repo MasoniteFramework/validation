@@ -296,7 +296,7 @@ class is_future(BaseValidation):
 class email(BaseValidation):
     def passes(self, attribute, key, dictionary):
         return re.compile(
-            r"^[^.].+@([?)[a-zA-Z0-9-.])+.([a-zA-Z]{2,3}|[0-9]{1,3})(]?)$"
+            r"^[^.][^@]*@([?)[a-zA-Z0-9-.])+.([a-zA-Z]{2,3}|[0-9]{1,3})(]?)$"
         ).match(attribute)
 
     def message(self, attribute):
