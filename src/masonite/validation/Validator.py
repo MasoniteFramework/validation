@@ -55,10 +55,8 @@ class BaseValidation:
 
     def handle(self, dictionary):
         boolean = True
-
         for key in self.validations:
             if self.negated:
-
                 if self.passes(self.find(key, dictionary), key, dictionary):
                     boolean = False
                     if hasattr(self, "negated_message"):
@@ -513,10 +511,10 @@ class is_in(BaseValidation):
 class greater_than(BaseValidation):
     def __init__(self, validations, value="", messages={}, raises={}):
         super().__init__(validations, messages=messages, raises=raises)
-        self.value = value
+        self.value = int(value)
 
     def passes(self, attribute, key, dictionary):
-        return attribute > self.value
+        return int(attribute) > self.value
 
     def message(self, attribute):
         return "The {} must be greater than {}.".format(attribute, self.value)
@@ -1029,6 +1027,133 @@ class postal_code(BaseValidation):
         return "The {} is a valid {} postal code.".format(attribute, self.locale)
 
 
+class different(BaseValidation):
+    """The field under validation must be different than an other given field."""
+    def __init__(self, validations, other_field, messages={}, raises={}):
+        super().__init__(validations, messages=messages, raises=raises)
+        self.other_field = other_field
+
+    def passes(self, attribute, key, dictionary):
+        other_value = dictionary.get(self.other_field, None)
+        return attribute != other_value
+
+    def message(self, attribute):
+        return "The {} value must be different than {} value.".format(attribute, self.other_field)
+
+    def negated_message(self, attribute):
+        return "The {} value be the same as {} value.".format(attribute, self.other_field)
+
+
+class uuid(BaseValidation):
+    """The field under validation must be a valid UUID. The UUID version standard
+    can be precised (1,3,4,5)."""
+    def __init__(self, validations, version=None, messages={}, raises={}):
+        super().__init__(validations, messages=messages, raises=raises)
+        self.version = version
+        self.uuid_type = "UUID"
+        if version:
+            self.uuid_type = "UUID {0}".format(self.version)
+
+    def passes(self, attribute, key, dictionary):
+        from uuid import UUID
+        try:
+            uuid_value = UUID(str(attribute))
+            if self.version:
+                return uuid_value.version == int(self.version)
+            else:
+                return True
+        except ValueError:
+            return False
+
+    def message(self, attribute):
+        return "The {} value must be a valid {}.".format(attribute, self.uuid_type)
+
+    def negated_message(self, attribute):
+        return "The {} value must not be a valid {}.".format(attribute, self.uuid_type)
+
+
+class required_if(BaseValidation):
+    """The field under validation must be present and not empty only
+    if an other field has a given value."""
+    def __init__(self, validations, other_field, value, messages={}, raises={}):
+        super().__init__(validations, messages=messages, raises=raises)
+        self.other_field = other_field
+        self.value = value
+
+    def passes(self, attribute, key, dictionary):
+        if dictionary.get(self.other_field, None) == self.value:
+            return required.passes(self, attribute, key, dictionary)
+        else:
+            return True
+
+    def message(self, attribute):
+        return "The {} is required because {}={}.".format(attribute, self.other_field, self.value)
+
+    def negated_message(self, attribute):
+        return "The {} is not required because {}={} or {} is not present.".format(
+            attribute, self.other_field, self.value, self.other_field
+        )
+
+
+class required_with(BaseValidation):
+    """The field under validation must be present and not empty only
+    if any of the other specified fields are present."""
+
+    def __init__(self, validations, other_fields, messages={}, raises={}):
+        super().__init__(validations, messages=messages, raises=raises)
+        if not isinstance(other_fields, list):
+            if "," in other_fields:
+                self.other_fields = other_fields.split(",")
+            else:
+                self.other_fields = [other_fields]
+        else:
+            self.other_fields = other_fields
+
+    def passes(self, attribute, key, dictionary):
+        for field in self.other_fields:
+            if field in dictionary:
+                return required.passes(self, attribute, key, dictionary)
+        else:
+            return True
+
+    def message(self, attribute):
+        fields = ",".join(self.other_fields)
+        return "The {} is required because {} is present.".format(
+            attribute,
+            "one in {}".format(fields) if len(self.other_fields) > 1 else self.other_fields[0],
+        )
+
+    def negated_message(self, attribute):
+        return "The {} is not required because {} {} is not present.".format(
+            attribute,
+            "none of" if len(self.other_fields) > 1 else "",
+            ",".join(self.other_fields)
+        )
+
+
+class distinct(BaseValidation):
+    """When working with list, the field under validation must not have any
+    duplicate values."""
+
+    def passes(self, attribute, key, dictionary):
+        # check if list contains duplicates
+        if len(set(attribute)) != len(attribute):
+            return False
+        else:
+            return True
+
+    def message(self, attribute):
+        return "The {} field has duplicate values.".format(attribute)
+
+    def negated_message(self, attribute):
+        return "The {} field has only different values.".format(attribute)
+
+
+class bail(BaseValidation):
+    def passes(self, attribute, key, dictionary):
+        return True
+
+
 def flatten(iterable):
 
     flat_list = []
@@ -1082,20 +1207,32 @@ class Validator:
         rule, parameters = rule.split(":")[0], rule.split(":")[1].split(",")
         return ValidationFactory().registry[rule](parameters)
 
-    def parse_dict(self, rule, dictionary, rule_errors):
-        for value, rules in rule.items():
-            for rule in rules.split("|"):
-                rule, args = rule.split(":")[0], rule.split(":")[1:]
-                rule = ValidationFactory().registry[rule](value, *args)
-
-            rule.handle(dictionary)
-            for error, message in rule.errors.items():
-                if error not in rule_errors:
-                    rule_errors.update({error: message})
+    def parse_dict(self, rules, dictionary, rule_errors):
+        for value, rules_str in rules.items():
+            should_bail = False
+            for rule in rules_str.split("|"):
+                if rule == "bail":
+                    should_bail = True
+                    continue
+                if ":" in rule:
+                    rule_name, parameters_str = rule.split(":")
+                    parameters = parameters_str.split(",")
                 else:
-                    messages = rule_errors[error]
-                    messages += message
-                    rule_errors.update({error: messages})
+                    rule_name = rule
+                    parameters = ()
+                rule_class = ValidationFactory().registry[rule_name](value, *parameters)
+
+                ok = rule_class.handle(dictionary)
+                for error, message in rule_class.errors.items():
+                    if error not in rule_errors:
+                        rule_errors.update({error: message})
+                    else:
+                        messages = rule_errors[error]
+                        messages += message
+                        rule_errors.update({error: messages})
+                # after saving first errors if and should bail
+                if should_bail and not ok:
+                    return
 
     def run_enclosure(self, enclosure, dictionary):
         rule_errors = {}
@@ -1134,6 +1271,7 @@ class ValidationFactory:
             accepted,
             active_domain,
             after_today,
+            bail,
             before_today,
             confirmed,
             contains,
