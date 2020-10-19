@@ -904,7 +904,7 @@ class TestValidation(unittest.TestCase):
             }, uuid(["document_id"]))
             self.assertEqual(len(validate), 0)
 
-    def test_unvalid_uuid_values(self):
+    def test_invalid_uuid_values(self):
         for uuid_value in [None, [], True, "", "uuid", {"uuid": "nope"}, 3, ()]:
             validate = Validator().validate({
                 "document_id": uuid_value,
@@ -951,31 +951,31 @@ class TestValidation(unittest.TestCase):
         validate = Validator().validate({
             "first_name": "Sam",
             "last_name": "Gamji"
-        }, required_if(["last_name"], "first_name", "Sam")) 
+        }, required_if(["last_name"], "first_name", "Sam"))
         self.assertEqual(len(validate), 0)
         validate = Validator().validate({
             "first_name": "Sam",
             "last_name": ""
-        }, required_if(["last_name"], "first_name", "Sam")) 
+        }, required_if(["last_name"], "first_name", "Sam"))
         self.assertEqual(
             validate.get("last_name"), ["The last_name is required because first_name=Sam."]
         )
         validate = Validator().validate({
             "first_name": "Sam",
             "last_name": ""
-        }, required_if(["last_name"], "first_name", "Joe")) 
+        }, required_if(["last_name"], "first_name", "Joe"))
         self.assertEqual(len(validate), 0)
 
     def test_required_if_rule_when_other_field_is_not_present(self):
         validate = Validator().validate({
             "first_name": "Sam",
-        }, required_if(["last_name"], "first_name", "Sam")) 
+        }, required_if(["last_name"], "first_name", "Sam"))
         self.assertEqual(
             validate.get("last_name"), ["The last_name is required because first_name=Sam."]
         )
         validate = Validator().validate({
             "first_name": "Sam",
-        }, required_if(["last_name"], "first_name", "Joe")) 
+        }, required_if(["last_name"], "first_name", "Joe"))
         self.assertEqual(len(validate), 0)
 
     def test_required_with_rule(self):
@@ -983,17 +983,17 @@ class TestValidation(unittest.TestCase):
             "first_name": "Sam",
             "last_name": "Gamji",
             "email": "samgamji@loftr.com"
-        }, required_with(["email"], ["first_name", "last_name" "nick_name"])) 
+        }, required_with(["email"], ["first_name", "last_name" "nick_name"]))
         self.assertEqual(len(validate), 0)
         validate = Validator().validate({
             "first_name": "Sam",
             "email": "samgamji@loftr.com"
-        }, required_with(["email"], "first_name")) 
+        }, required_with(["email"], "first_name"))
         self.assertEqual(len(validate), 0)
         validate = Validator().validate({
             "first_name": "Sam",
             "email": ""
-        }, required_with(["email"], "first_name")) 
+        }, required_with(["email"], "first_name"))
         self.assertEqual(
             validate.get("email"), ["The email is required because first_name is present."]
         )
