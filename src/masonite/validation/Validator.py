@@ -1049,7 +1049,7 @@ class different(BaseValidation):
 class uuid(BaseValidation):
     """The field under validation must be a valid UUID. The UUID version standard
     can be precised (1,3,4,5)."""
-    def __init__(self, validations, version=None, messages={}, raises={}):
+    def __init__(self, validations, version=4, messages={}, raises={}):
         super().__init__(validations, messages=messages, raises=raises)
         self.version = version
         self.uuid_type = "UUID"
@@ -1060,10 +1060,7 @@ class uuid(BaseValidation):
         from uuid import UUID
         try:
             uuid_value = UUID(str(attribute))
-            if self.version:
-                return uuid_value.version == int(self.version)
-            else:
-                return True
+            return uuid_value.version == int(self.version)
         except ValueError:
             return False
 
@@ -1139,10 +1136,7 @@ class distinct(BaseValidation):
 
     def passes(self, attribute, key, dictionary):
         # check if list contains duplicates
-        if len(set(attribute)) != len(attribute):
-            return False
-        else:
-            return True
+        return len(set(attribute)) == len(attribute)
 
     def message(self, attribute):
         return "The {} field has duplicate values.".format(attribute)
