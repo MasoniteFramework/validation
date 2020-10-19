@@ -894,15 +894,22 @@ class TestValidation(unittest.TestCase):
             validate.get("field_1"), ["The field_1 value must be different than field_2 value."]
         )
 
-    def test_all_uuid_versions_are_considered_valid(self):
+    def test_that_default_uuid_must_be_uuid4(self):
         from uuid import NAMESPACE_DNS
         u3 = uuid3(NAMESPACE_DNS, "domain.com")
         u5 = uuid5(NAMESPACE_DNS, "domain.com")
-        for uuid_value in [uuid1(), u3, uuid4(), u5]:
+        for uuid_value in [uuid1(), u3, u5]:
             validate = Validator().validate({
                 "document_id": uuid_value,
             }, uuid(["document_id"]))
-            self.assertEqual(len(validate), 0)
+            self.assertEqual(
+                validate.get("document_id"), ["The document_id value must be a valid UUID 4."]
+            )
+
+        validate = Validator().validate({
+            "document_id": uuid4(),
+        }, uuid(["document_id"], 4))
+        self.assertEqual(len(validate), 0)
 
     def test_invalid_uuid_values(self):
         for uuid_value in [None, [], True, "", "uuid", {"uuid": "nope"}, 3, ()]:
@@ -910,7 +917,7 @@ class TestValidation(unittest.TestCase):
                 "document_id": uuid_value,
             }, uuid(["document_id"]))
             self.assertEqual(
-                validate.get("document_id"), ["The document_id value must be a valid UUID."]
+                validate.get("document_id"), ["The document_id value must be a valid UUID 4."]
             )
 
     def test_uuid_rule_with_specified_versions(self):
