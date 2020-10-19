@@ -1082,8 +1082,8 @@ class required_if(BaseValidation):
     def passes(self, attribute, key, dictionary):
         if dictionary.get(self.other_field, None) == self.value:
             return required.passes(self, attribute, key, dictionary)
-        else:
-            return True
+
+        return True
 
     def message(self, attribute):
         return "The {} is required because {}={}.".format(attribute, self.other_field, self.value)
