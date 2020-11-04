@@ -459,6 +459,18 @@ class TestValidation(unittest.TestCase):
         self.assertEqual(len(validate), 0)
 
         validate = Validator().validate(
+            {"text": "1"}, in_range(["text"], min=1, max=10)
+        )
+
+        self.assertEqual(len(validate), 0)
+
+        validate = Validator().validate(
+            {"text": "1.5"}, in_range(["text"], min=1.5, max=5.5)
+        )
+
+        self.assertEqual(len(validate), 0)
+
+        validate = Validator().validate(
             {"text": 101}, in_range(["text"], min=25, max=72)
         )
 
@@ -990,6 +1002,15 @@ class TestDotNotationValidation(unittest.TestCase):
 
         self.assertEqual(
             validate.all(), {"user.age": ["The user.age must be between 27 and 72."]}
+        )
+
+        validate = Validator().validate(
+            {"data": {"value": "1.5"}},
+            in_range(["data.value"], min=2, max=2.5),
+        )
+
+        self.assertEqual(
+            validate.all(), {"data.value": ["The data.value must be between 2 and 2.5."]}
         )
 
     def test_dot_equals(self):

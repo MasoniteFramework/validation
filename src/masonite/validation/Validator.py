@@ -454,6 +454,21 @@ class in_range(BaseValidation):
         self.max = max
 
     def passes(self, attribute, key, dictionary):
+
+        attribute = str(attribute)
+
+        if attribute.isalpha():
+            raise ValueError("In range rule only accepts numeric values.")
+
+        if "." in attribute:
+            try:
+              attribute = float(attribute)
+            except:
+              pass
+
+        elif attribute.isdigit():
+            attribute = int(attribute)
+        
         return attribute >= self.min and attribute <= self.max
 
     def message(self, attribute):
