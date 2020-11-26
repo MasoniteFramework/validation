@@ -1010,10 +1010,11 @@ class postal_code(BaseValidation):
     def __init__(self, validations, locale, messages={}, raises={}):
         super().__init__(validations, messages=messages, raises=raises)
         from .resources.postal_codes import PATTERNS
+
         self.locales = []
         self.patterns = []
         self.patterns_example = []
-        self.locales = locale.split(',')
+        self.locales = locale.split(",")
 
         for locale in self.locales:
             pattern_dict = PATTERNS.get(locale, None)
@@ -1036,8 +1037,10 @@ class postal_code(BaseValidation):
 
     def message(self, attribute):
         return "The {} is not a valid {} postal code. Valid {} {}.".format(
-            attribute, ','.join(self.locales), "examples are" if len(self.locales) > 1 else "example is",
-            ','.join(self.patterns_example)
+            attribute,
+            ",".join(self.locales),
+            "examples are" if len(self.locales) > 1 else "example is",
+            ",".join(self.patterns_example),
         )
 
     def negated_message(self, attribute):
@@ -1046,6 +1049,7 @@ class postal_code(BaseValidation):
 
 class different(BaseValidation):
     """The field under validation must be different than an other given field."""
+
     def __init__(self, validations, other_field, messages={}, raises={}):
         super().__init__(validations, messages=messages, raises=raises)
         self.other_field = other_field
@@ -1055,15 +1059,20 @@ class different(BaseValidation):
         return attribute != other_value
 
     def message(self, attribute):
-        return "The {} value must be different than {} value.".format(attribute, self.other_field)
+        return "The {} value must be different than {} value.".format(
+            attribute, self.other_field
+        )
 
     def negated_message(self, attribute):
-        return "The {} value be the same as {} value.".format(attribute, self.other_field)
+        return "The {} value be the same as {} value.".format(
+            attribute, self.other_field
+        )
 
 
 class uuid(BaseValidation):
     """The field under validation must be a valid UUID. The UUID version standard
     can be precised (1,3,4,5)."""
+
     def __init__(self, validations, version=4, messages={}, raises={}):
         super().__init__(validations, messages=messages, raises=raises)
         self.version = version
@@ -1073,6 +1082,7 @@ class uuid(BaseValidation):
 
     def passes(self, attribute, key, dictionary):
         from uuid import UUID
+
         try:
             uuid_value = UUID(str(attribute))
             return uuid_value.version == int(self.version)
@@ -1089,6 +1099,7 @@ class uuid(BaseValidation):
 class required_if(BaseValidation):
     """The field under validation must be present and not empty only
     if an other field has a given value."""
+
     def __init__(self, validations, other_field, value, messages={}, raises={}):
         super().__init__(validations, messages=messages, raises=raises)
         self.other_field = other_field
@@ -1101,7 +1112,9 @@ class required_if(BaseValidation):
         return True
 
     def message(self, attribute):
-        return "The {} is required because {}={}.".format(attribute, self.other_field, self.value)
+        return "The {} is required because {}={}.".format(
+            attribute, self.other_field, self.value
+        )
 
     def negated_message(self, attribute):
         return "The {} is not required because {}={} or {} is not present.".format(
@@ -1134,14 +1147,16 @@ class required_with(BaseValidation):
         fields = ",".join(self.other_fields)
         return "The {} is required because {} is present.".format(
             attribute,
-            "one in {}".format(fields) if len(self.other_fields) > 1 else self.other_fields[0],
+            "one in {}".format(fields)
+            if len(self.other_fields) > 1
+            else self.other_fields[0],
         )
 
     def negated_message(self, attribute):
         return "The {} is not required because {} {} is not present.".format(
             attribute,
             "none of" if len(self.other_fields) > 1 else "",
-            ",".join(self.other_fields)
+            ",".join(self.other_fields),
         )
 
 

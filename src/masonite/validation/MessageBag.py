@@ -22,38 +22,31 @@ class MessageBag(Responsable):
             self.items.update({error: [message]})
 
     def all(self):
-        """Get all errors and messages
-        """
+        """Get all errors and messages"""
         return self.items
 
     def any(self):
-        """If the messagebag has any errors
-        """
+        """If the messagebag has any errors"""
         return len(self.items) > 0
 
     def has(self, key):
-        """If the messagebag has any errors
-        """
+        """If the messagebag has any errors"""
         return key in self.all()
 
     def empty(self):
-        """If the messagebag has any errors
-        """
+        """If the messagebag has any errors"""
         return not self.any()
 
     def first(self, key):
-        """Gets the first error and message
-        """
+        """Gets the first error and message"""
         return self.get(key)[0]
 
     def count(self):
-        """Gets the amount of errors
-        """
+        """Gets the amount of errors"""
         return len(self.items)
 
     def json(self):
-        """Gets the amount of errors
-        """
+        """Gets the amount of errors"""
         return json.dumps(self.items)
 
     def amount(self, key):
@@ -79,13 +72,11 @@ class MessageBag(Responsable):
         return self.items[key]
 
     def errors(self):
-        """Gets a list of errors
-        """
+        """Gets a list of errors"""
         return list(self.items.keys())
 
     def messages(self):
-        """Gets a list of all the messages
-        """
+        """Gets a list of all the messages"""
         messages = []
         for error, message in self.items.items():
             messages += message
@@ -93,8 +84,7 @@ class MessageBag(Responsable):
         return messages
 
     def reset(self):
-        """Gets a list of all the messages
-        """
+        """Gets a list of all the messages"""
         self.items = {}
 
     def merge(self, dictionary):
