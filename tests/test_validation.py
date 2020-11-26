@@ -465,6 +465,18 @@ class TestValidation(unittest.TestCase):
         self.assertEqual(len(validate), 0)
 
         validate = Validator().validate(
+            {"text": 1}, in_range(["text"], min=1, max=10)
+        )
+
+        self.assertEqual(len(validate), 0)
+
+        validate = Validator().validate(
+            {"text": "hello"}, in_range(["text"], min=1, max=10)
+        )
+
+        self.assertEqual(validate.get("text"), ["The text must be between 1 and 10."])
+
+        validate = Validator().validate(
             {"text": "1.5"}, in_range(["text"], min=1.5, max=5.5)
         )
 

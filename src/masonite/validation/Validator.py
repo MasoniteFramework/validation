@@ -458,13 +458,13 @@ class in_range(BaseValidation):
         attribute = str(attribute)
 
         if attribute.isalpha():
-            raise ValueError("In range rule only accepts numeric values.")
+            return False
 
         if "." in attribute:
             try:
-              attribute = float(attribute)
+                attribute = float(attribute)
             except:
-              pass
+                pass
 
         elif attribute.isdigit():
             attribute = int(attribute)
