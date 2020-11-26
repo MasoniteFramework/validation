@@ -463,12 +463,12 @@ class in_range(BaseValidation):
         if "." in attribute:
             try:
                 attribute = float(attribute)
-            except:
+            except Exception:
                 pass
 
         elif attribute.isdigit():
             attribute = int(attribute)
-        
+
         return attribute >= self.min and attribute <= self.max
 
     def message(self, attribute):
