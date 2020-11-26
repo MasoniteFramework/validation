@@ -3,6 +3,7 @@ import unittest
 import pytest
 import platform
 import pendulum
+from uuid import uuid1, uuid3, uuid4, uuid5
 from masonite.app import App
 from masonite.drivers import SessionCookieDriver
 from masonite.managers import SessionManager
@@ -20,6 +21,8 @@ from src.masonite.validation import (
     confirmed,
     contains,
     date,
+    different,
+    distinct,
     does_not,
     email,
     equals,
@@ -37,6 +40,7 @@ from src.masonite.validation import (
     postal_code,
     strong,
     regex,
+    uuid,
     video,
 )
 from src.masonite.validation.Validator import json as vjson
@@ -49,6 +53,8 @@ from src.masonite.validation.Validator import (
     one_of,
     phone,
     required,
+    required_if,
+    required_with,
     string,
     timezone,
     truthy,
@@ -69,6 +75,11 @@ class TestValidation(unittest.TestCase):
         validate = Validator().validate({"test": 1}, required(["test"]))
 
         self.assertEqual(len(validate), 0)
+
+    def test_required_with_non_truthy_values(self):
+        for falsy_value in [[], {}, "", False, 0]:
+            validate = Validator().validate({"user": falsy_value}, required(["user"]))
+            self.assertEqual(validate.get("user"), ["The user field is required."])
 
     def test_can_validate_null_values(self):
         validate = Validator().validate({"test": None}, length(["test"], min=2, max=5))
@@ -860,6 +871,198 @@ class TestValidation(unittest.TestCase):
 
         self.assertEqual(len(validate), 0)
 
+    def test_different(self):
+        validate = Validator().validate({
+            "field_1": "value_1",
+            "field_2": "value_2"
+        }, different(["field_1"], "field_2"))
+        self.assertEqual(len(validate), 0)
+
+        validate = Validator().validate({
+            "field_1": "value_1",
+            "field_2": "value_1"
+        }, different(["field_1"], "field_2"))
+        self.assertEqual(
+            validate.get("field_1"), ["The field_1 value must be different than field_2 value."]
+        )
+
+        validate = Validator().validate({
+            "field_1": None,
+            "field_2": None
+        }, different(["field_1"], "field_2"))
+        self.assertEqual(
+            validate.get("field_1"), ["The field_1 value must be different than field_2 value."]
+        )
+
+    def test_that_default_uuid_must_be_uuid4(self):
+        from uuid import NAMESPACE_DNS
+        u3 = uuid3(NAMESPACE_DNS, "domain.com")
+        u5 = uuid5(NAMESPACE_DNS, "domain.com")
+        for uuid_value in [uuid1(), u3, u5]:
+            validate = Validator().validate({
+                "document_id": uuid_value,
+            }, uuid(["document_id"]))
+            self.assertEqual(
+                validate.get("document_id"), ["The document_id value must be a valid UUID 4."]
+            )
+
+        validate = Validator().validate({
+            "document_id": uuid4(),
+        }, uuid(["document_id"], 4))
+        self.assertEqual(len(validate), 0)
+
+    def test_invalid_uuid_values(self):
+        for uuid_value in [None, [], True, "", "uuid", {"uuid": "nope"}, 3, ()]:
+            validate = Validator().validate({
+                "document_id": uuid_value,
+            }, uuid(["document_id"]))
+            self.assertEqual(
+                validate.get("document_id"), ["The document_id value must be a valid UUID 4."]
+            )
+
+    def test_uuid_rule_with_specified_versions(self):
+        from uuid import NAMESPACE_DNS
+        u3 = uuid3(NAMESPACE_DNS, "domain.com")
+        u5 = uuid5(NAMESPACE_DNS, "domain.com")
+        for version, uuid_value in [(1, uuid1()), (3, u3), (4, uuid4()), (5, u5)]:
+            validate = Validator().validate({
+                "document_id": uuid_value,
+            }, uuid(["document_id"], version))
+            self.assertEqual(len(validate), 0)
+
+    def test_invalid_uuid_rule_with_specified_versions(self):
+        for version in [1, 2, 3, 5]:
+            validate = Validator().validate({
+                "document_id": uuid4(),
+            }, uuid(["document_id"], version))
+            self.assertEqual(
+                validate.get("document_id"), ["The document_id value must be a valid UUID {0}.".format(version)]
+            )
+
+    def test_uuid_version_can_be_str_or_int(self):
+        uuid_value = uuid4()
+        for version in [4, "4"]:
+            validate = Validator().validate({
+                "document_id": uuid_value,
+            }, uuid(["document_id"], version))
+            self.assertEqual(len(validate), 0)
+        for version in [3, "3"]:
+            validate = Validator().validate({
+                "document_id": uuid_value,
+            }, uuid(["document_id"], version))
+            self.assertEqual(
+                validate.get("document_id"), ["The document_id value must be a valid UUID 3."]
+            )
+
+    def test_required_if_rule_when_other_field_is_present(self):
+        validate = Validator().validate({
+            "first_name": "Sam",
+            "last_name": "Gamji"
+        }, required_if(["last_name"], "first_name", "Sam"))
+        self.assertEqual(len(validate), 0)
+        validate = Validator().validate({
+            "first_name": "Sam",
+            "last_name": ""
+        }, required_if(["last_name"], "first_name", "Sam"))
+        self.assertEqual(
+            validate.get("last_name"), ["The last_name is required because first_name=Sam."]
+        )
+        validate = Validator().validate({
+            "first_name": "Sam",
+            "last_name": ""
+        }, required_if(["last_name"], "first_name", "Joe"))
+        self.assertEqual(len(validate), 0)
+
+    def test_required_if_rule_when_other_field_is_not_present(self):
+        validate = Validator().validate({
+            "first_name": "Sam",
+        }, required_if(["last_name"], "first_name", "Sam"))
+        self.assertEqual(
+            validate.get("last_name"), ["The last_name is required because first_name=Sam."]
+        )
+        validate = Validator().validate({
+            "first_name": "Sam",
+        }, required_if(["last_name"], "first_name", "Joe"))
+        self.assertEqual(len(validate), 0)
+
+    def test_required_with_rule(self):
+        validate = Validator().validate({
+            "first_name": "Sam",
+            "last_name": "Gamji",
+            "email": "samgamji@loftr.com"
+        }, required_with(["email"], ["first_name", "last_name" "nick_name"]))
+        self.assertEqual(len(validate), 0)
+        validate = Validator().validate({
+            "first_name": "Sam",
+            "email": "samgamji@loftr.com"
+        }, required_with(["email"], "first_name"))
+        self.assertEqual(len(validate), 0)
+        validate = Validator().validate({
+            "first_name": "Sam",
+            "email": ""
+        }, required_with(["email"], "first_name"))
+        self.assertEqual(
+            validate.get("email"), ["The email is required because first_name is present."]
+        )
+        validate = Validator().validate({
+            "first_name": "Sam",
+            "email": ""
+        }, required_with(["email"], "first_name,nick_name"))
+        self.assertEqual(
+            validate.get("email"), ["The email is required because one in first_name,nick_name is present."]
+        )
+
+    def test_required_with_rule_with_comma_separated_fields(self):
+        validate = Validator().validate({
+            "nick_name": "Sam",
+            "email": "samgamji@loftr.com"
+        }, required_with(["email"], "first_name,last_name,nick_name"))
+        self.assertEqual(len(validate), 0)
+        validate = Validator().validate({
+            "nick_name": "Sam",
+        }, required_with(["email"], "first_name,nick_name"))
+        self.assertEqual(
+            validate.get("email"), ["The email is required because one in first_name,nick_name is present."]
+        )
+
+    def test_distinct(self):
+        validate = Validator().validate({
+            "users": [
+                {
+                    "first_name": "John",
+                    "last_name": "Masonite",
+                },
+                {
+                    "first_name": "Joe",
+                    "last_name": "Masonite",
+                }
+            ]
+        }, distinct(["users.*.last_name"]))
+        self.assertEqual(
+            validate.get("users.*.last_name"), ["The users.*.last_name field has duplicate values."]
+        )
+        validate = Validator().validate({
+            "users": [
+                {
+                    "id": 1,
+                    "name": "John",
+                },
+                {
+                    "id": 2,
+                    "name": "Nick",
+                }
+            ]
+        }, distinct(["users.*.id"]))
+        self.assertEqual(len(validate), 0)
+
+    def test_distinct_with_simple_list(self):
+        validate = Validator().validate({
+            "emails": ["john@masonite.com", "joe@masonite.com", "john@masonite.com"]
+        }, distinct(["emails"]))
+        self.assertEqual(
+            validate.get("emails"), ["The emails field has duplicate values."]
+        )
+
 
 class TestDotNotationValidation(unittest.TestCase):
     def setUp(self):
@@ -1289,3 +1492,32 @@ class TestDictValidation(unittest.TestCase):
         )
 
         self.assertEqual(len(validate), 0)
+
+    def test_required_with_string_validation(self):
+        validate = Validator().validate({
+            "first_name": "Sam",
+            "email": "samgamji@loftr.com"
+        },
+        {
+            "email": "required_with:first_name,last_name"
+        })
+        self.assertEqual(len(validate), 0)
+        # with one argument
+        validate = Validator().validate({
+            "email": ""
+        },
+        {
+            "email": "required_with:first_name"
+        })
+        self.assertEqual(len(validate), 0)
+        validate = Validator().validate({
+            "first_name": "Sam",
+            "email": ""
+        },
+        {
+            "email": "required_with:first_name,nick_name"
+        })
+        self.assertIn(
+            "The email is required because one in first_name,nick_name is present.",
+            validate.get("email"),
+        )
