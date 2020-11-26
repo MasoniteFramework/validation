@@ -3,3 +3,4 @@ pytest
 flake8
 pwnedapi==1.0.2
 hfilesize==0.1.0
+masonite-dot==0.0.5

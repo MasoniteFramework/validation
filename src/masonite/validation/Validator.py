@@ -454,6 +454,21 @@ class in_range(BaseValidation):
         self.max = max
 
     def passes(self, attribute, key, dictionary):
+
+        attribute = str(attribute)
+
+        if attribute.isalpha():
+            return False
+
+        if "." in attribute:
+            try:
+                attribute = float(attribute)
+            except Exception:
+                pass
+
+        elif attribute.isdigit():
+            attribute = int(attribute)
+
         return attribute >= self.min and attribute <= self.max
 
     def message(self, attribute):
