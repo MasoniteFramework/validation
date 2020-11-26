@@ -104,6 +104,11 @@ class TestValidation(unittest.TestCase):
         self.assertEqual(
             validate.all(), {"email": ["The email must be a valid email address."]}
         )
+        
+    def test_email_with_one_letter_username(self):
+        validate = Validator().validate({"email": "u@example.com"}, email(["email"]))
+        self.assertEqual(len(validate), 0)
+
 
     def test_matches(self):
         validate = Validator().validate(
