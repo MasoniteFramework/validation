@@ -475,6 +475,12 @@ class TestValidation(unittest.TestCase):
             validate.all(), {"json": ["The json must be at least 6 characters."]}
         )
 
+        # passing test when only min given
+        validate = Validator().validate(
+            {"json": "string which is long enough"}, length(["json"], min=6)
+        )
+        self.assertEqual(len(validate), 0)
+
         # test when only max given
         validate = Validator().validate(
             {"json": "this is a string too long"}, length(["json"], max=10)
