@@ -415,7 +415,7 @@ class none(BaseValidation):
 
 
 class length(BaseValidation):
-    def __init__(self, validations, min=1, max=False, messages={}, raises={}):
+    def __init__(self, validations, min=0, max=False, messages={}, raises={}):
         super().__init__(validations, messages=messages, raises=raises)
         if isinstance(min, str) and ".." in min:
             self.min = int(min.split("..")[0])
@@ -427,8 +427,10 @@ class length(BaseValidation):
     def passes(self, attribute, key, dictionary):
         if not hasattr(attribute, "__len__"):
             attribute = str(attribute)
-
-        return len(attribute) >= self.min and len(attribute) <= self.max
+        if self.max:
+            return len(attribute) >= self.min and len(attribute) <= self.max
+        else:
+            return len(attribute) >= self.min
 
     def message(self, attribute):
         if self.min and not self.max:

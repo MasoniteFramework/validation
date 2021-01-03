@@ -487,8 +487,14 @@ class TestValidation(unittest.TestCase):
         )
 
         self.assertEqual(
-            validate.all(), {"json": ["The json length must be between 1 and 10."]}
+            validate.all(), {"json": ["The json length must be between 0 and 10."]}
         )
+
+        # test that empty strings validates maximum length
+        validate = Validator().validate(
+            {"json": ""}, length(["json"], max=10)
+        )
+        self.assertEqual(len(validate), 0)
 
     def test_string(self):
         validate = Validator().validate({"text": "hey"}, string(["text"]))
@@ -557,7 +563,7 @@ class TestValidation(unittest.TestCase):
             {"text": "hello"}, in_range(["text"], min=1, max=10)
         )
 
-        self.assertEqual(validate.get("text"), ["The text must be between 1 and 10."])
+        self.assertEqual(validate.get("text"), ["The text must be between 0 and 10."])
 
         validate = Validator().validate(
             {"text": "1.5"}, in_range(["text"], min=1.5, max=5.5)
@@ -1388,7 +1394,7 @@ class TestDotNotationValidation(unittest.TestCase):
             validate.all(),
             {
                 "user.description": [
-                    "The user.description length must be between 1 and 10."
+                    "The user.description length must be between 0 and 10."
                 ]
             },
         )
