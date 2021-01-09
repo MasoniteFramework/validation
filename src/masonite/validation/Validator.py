@@ -1063,9 +1063,10 @@ def resolve_model_or_table(table_name):
 
 
 class exists_in_db(BaseValidation):
+    """A record with field equal to the given value should exists in the table/model specified."""
     def __init__(self, validations, table_or_model, column=None, connection="default", messages={}, raises={}):
         super().__init__(validations, messages=messages, raises=raises)
-        # here Masonite ORM is only needed when using the "databases" validation rules
+        # here Masonite ORM is only needed when using the "database" validation rules
         # else package will not complain
         from masonite.helpers import config
         # TODO fetch connection if given
@@ -1084,15 +1085,37 @@ class exists_in_db(BaseValidation):
         )
 
     def negated_message(self, attribute):
-
         return "A record already exists in table {} with the same {}.".format(
             self.table, attribute
         )
 
 
 class unique(BaseValidation):
-    # TODO
-    pass
+    """No record should exist for the field under validation within the given table/model."""
+    def __init__(self, validations, table_or_model, column=None, connection="default", messages={}, raises={}):
+        super().__init__(validations, messages=messages, raises=raises)
+        # here Masonite ORM is only needed when using the "database" validation rules
+        # else package will not complain
+        from masonite.helpers import config
+        # TODO fetch connection if given
+        self.connection = config("database.db").get_query_builder(connection)
+        self.column = column
+        self.table, self.model = resolve_model_or_table(table_or_model)
+
+    def passes(self, attribute, key, dictionary):
+        column = key if not self.column else self.column
+        count = self.connection.table(self.table).where(column, attribute).count()
+        return count == 0
+
+    def message(self, attribute):
+        return "A record already exists in table {} with the same {}.".format(
+            self.table, attribute
+        )
+
+    def negated_message(self, attribute):
+        return "A record should exist in table {} with the same {}.".format(
+            self.table, attribute
+        )
 
 
 class different(BaseValidation):
@@ -1366,6 +1389,7 @@ class ValidationFactory:
             strong,
             timezone,
             truthy,
+            unique,
             uuid,
             video,
             when,

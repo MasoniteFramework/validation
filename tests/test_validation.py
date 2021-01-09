@@ -41,6 +41,7 @@ from src.masonite.validation import (
     postal_code,
     strong,
     regex,
+    unique,
     uuid,
     video,
 )
@@ -1077,10 +1078,10 @@ class TestValidation(unittest.TestCase):
         )
         self.assertEqual(len(validate), 0)
 
-    # TODO: this test requires an other connection, so mysql or postgres running
-    # maybe add a pytest tag to disable it on CI, and run it only locally
     @pytest.mark.db_tests
     def test_can_override_connection_in_exists_in_db(self):
+        """this test requires an other connection, so mysql or postgres running
+        maybe add a pytest tag to disable it on CI, and run it only locally."""
         from app.User import User
         # delete all users for the test first
         User.where("email", "sam@masonite.com").delete()
@@ -1091,6 +1092,20 @@ class TestValidation(unittest.TestCase):
         )
         self.assertEqual(len(validate), 0)
 
+    def test_unique_in_db(self):
+        from app.User import User
+        # delete all users for the test first
+        User.where("email", "sam@masonite.com").delete()
+        User.create(name="Sam", email="sam@masonite.com", password="test")
+
+        validate = Validator().validate(
+            {"email": "sam@masonite.com"}, unique(["email"], "app.User")
+        )
+        self.assertEqual(validate.get("email"), ["A record already exists in table users with the same email."])
+        validate = Validator().validate(
+            {"user_email": "john@masonite.com"}, unique(["user_email"], "users", "email")
+        )
+        self.assertEqual(len(validate), 0)
 
     def test_different(self):
         validate = Validator().validate(

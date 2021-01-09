@@ -43,6 +43,7 @@ from .Validator import (
     strong,
     timezone,
     truthy,
+    unique,
     uuid,
     video,
     when,
