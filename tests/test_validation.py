@@ -61,7 +61,6 @@ from src.masonite.validation.Validator import (
     truthy,
     when,
 )
-from src.masonite.validation.Validator import parse_table
 
 
 class TestValidation(unittest.TestCase):
@@ -1047,9 +1046,10 @@ class TestValidation(unittest.TestCase):
 
     def test_exists_in_db(self):
         from app.User import User
-        # delete all users for the test first()
+        # delete all users for the test first
         User.where("email", "sam@masonite.com").delete()
-        user = User.create(name="Sam", email="sam@masonite.com", password="test")
+        User.create(name="Sam", email="sam@masonite.com", password="test")
+
         validate = Validator().validate(
             {"email": "sam@masonite.com"}, exists_in_db(["email"], "users")
         )
@@ -1057,18 +1057,25 @@ class TestValidation(unittest.TestCase):
         validate = Validator().validate(
             {"email": "john@masonite.com"}, exists_in_db(["email"], "users")
         )
-        self.assertEqual(validate.get("email"), ["does not exist"])
+        self.assertEqual(validate.get("email"), ["No record found in table users with the same email."])
 
-        # check column name can be given
+        # check column name can be specified
         validate = Validator().validate(
             {"first_name": "Sam"}, exists_in_db(["first_name"], "users", "name"),
         )
         self.assertEqual(len(validate), 0)
-        # TODO: check ORM model can be given
-        # validate = Validator().validate(
-        #     {"email": "joe@masonite.com"}, exists_in_db(["email"], "app.User")
-        # )
-        # self.assertEqual(validate.get("email"), ["does not exist"])
+
+        # check ORM model can be given
+        validate = Validator().validate(
+            {"email": "joe@masonite.com"}, exists_in_db(["email"], "app.User")
+        )
+        self.assertEqual(validate.get("email"), ["No record found in table users with the same email."])
+
+        # check ORM model and column can be given
+        validate = Validator().validate(
+            {"first_name": "Sam"}, exists_in_db(["first_name"], "app.User", "name")
+        )
+        self.assertEqual(len(validate), 0)
 
 
     def test_different(self):
@@ -1793,5 +1800,35 @@ class TestDictValidation(unittest.TestCase):
         )
         self.assertIn(
             "The email is required because one in first_name,nick_name is present.",
+            validate.get("email"),
+        )
+
+    def test_exists_in_db_with_string_validation(self):
+        from app.User import User
+        # delete all users for the test first
+        User.where("email", "sam@masonite.com").delete()
+        User.create(name="Sam", email="sam@masonite.com", password="test")
+
+        validate = Validator().validate(
+            {"email": "sam@masonite.com"},
+            {"email": "exists_in_db:users"}
+        )
+        self.assertEqual(len(validate), 0)
+
+        # TODO: make validator works with multiple args
+        # actually: the core validator should be responsible for parsing all args comma separated
+        # and send it to the function
+        # validate = Validator().validate(
+        #     {"user_email": "sam@masonite.com"},
+        #     {"user_email": "exists_in_db:users,email"}
+        # )
+        # self.assertEqual(len(validate), 0)
+
+        validate = Validator().validate(
+            {"email": "joe@masonite.com"},
+            {"email": "exists_in_db:app.User"}
+        )
+        self.assertIn(
+            "No record found in table users with the same email.",
             validate.get("email"),
         )

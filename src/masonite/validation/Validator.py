@@ -1049,45 +1049,51 @@ class postal_code(BaseValidation):
         return "The {} is a valid {} postal code.".format(attribute, self.locale)
 
 
-def parse_table(table_name, column="id"):
+def resolve_model_or_table(table_name):
     import importlib
     if "." in table_name:
         m = importlib.import_module(table_name)
         # get model
         model_name = table_name.split(".")[-1]
         model = getattr(m, model_name)
-        table = model().get_table()
+        table = model().get_table_name()
         return table, model
     else:
         return table_name, None
 
 
 class exists_in_db(BaseValidation):
-    def __init__(self, validations, table, column=None, messages={}, raises={}):
+    def __init__(self, validations, table_or_model, column=None, connection="default", messages={}, raises={}):
         super().__init__(validations, messages=messages, raises=raises)
         # here Masonite ORM is only needed when using the "databases" validation rules
         # else package will not complain
         from masonite.helpers import config
+        # TODO fetch connection if given
         self.connection = config("database.db").get_query_builder()
         self.column = column
-        self.table, self.model = parse_table(table)
+        self.table, self.model = resolve_model_or_table(table_or_model)
 
     def passes(self, attribute, key, dictionary):
         column = key if not self.column else self.column
         count = self.connection.table(self.table).where(column, attribute).count()
-        import pdb ; pdb.set_trace()
         return count
 
     def message(self, attribute):
-        return "does not exist"
+        return "No record found in table {} with the same {}.".format(
+            self.table, attribute
+        )
 
     def negated_message(self, attribute):
-        return "exists"
+
+        return "A record already exists in table {} with the same {}.".format(
+            self.table, attribute
+        )
 
 
 class unique(BaseValidation):
     # TODO
     pass
+
 
 class different(BaseValidation):
     """The field under validation must be different than an other given field."""
