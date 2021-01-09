@@ -1,9 +1,7 @@
 """ Database Settings """
 
-import os
-
-from masonite.environment import LoadEnvironment
-from orator import DatabaseManager, Model
+from masonite.environment import LoadEnvironment, env
+from masoniteorm.connections import ConnectionResolver
 
 """
 |--------------------------------------------------------------------------
@@ -29,17 +27,47 @@ LoadEnvironment()
 """
 
 DATABASES = {
-    'default': os.environ.get('DB_DRIVER'),
-    'sqlite': {
-        'driver': 'sqlite',
-        'database': os.environ.get('DB_DATABASE')
+    "default": env('DB_DRIVER'),
+    "mysql": {
+        "driver": "mysql",
+        "host": env("MYSQL_DATABASE_HOST"),
+        "user": env("MYSQL_DATABASE_USER"),
+        "password": env("MYSQL_DATABASE_PASSWORD"),
+        "database": env("MYSQL_DATABASE_DATABASE"),
+        "port": env("MYSQL_DATABASE_PORT"),
+        "prefix": "",
+        "grammar": "mysql",
+        "options": {
+            "charset": "utf8mb4",
+        },
+        "log_queries": True,
     },
-    os.environ.get('DB_DRIVER'): {
-        'driver': os.environ.get('DB_DRIVER'),
-        'database': os.environ.get('DB_DATABASE'),
-        'prefix': ''
-    }
+    "postgres": {
+        "driver": "postgres",
+        "host": env("DB_HOST"),
+        "user": env("DB_USERNAME"),
+        "password": env("DB_PASSWORD"),
+        "database": env("DB_DATABASE"),
+        "port": env("DB_PORT"),
+        "prefix": "",
+        "log_queries": True,
+    },
+    "sqlite": {
+        "driver": "sqlite",
+        "database": env("DB_DATABASE"),
+        "prefix": "",
+        "log_queries": True,
+    },
+    "mssql": {
+        "driver": "mssql",
+        "host": env("MSSQL_DATABASE_HOST"),
+        "user": env("MSSQL_DATABASE_USER"),
+        "password": env("MSSQL_DATABASE_PASSWORD"),
+        "database": env("MSSQL_DATABASE_DATABASE"),
+        "port": env("MSSQL_DATABASE_PORT"),
+        "prefix": "",
+        "log_queries": True,
+    },
 }
 
-DB = DatabaseManager(DATABASES)
-Model.set_connection_resolver(DB)
+DB = ConnectionResolver().set_connection_details(DATABASES)

@@ -2,6 +2,7 @@
 
 from masonite.providers import (
     AppProvider,
+    RequestHelpersProvider,
     AuthenticationProvider,
     SessionProvider,
     RouteProvider,
@@ -18,6 +19,7 @@ from masonite.providers import (
 )
 
 from src.masonite.validation.providers import ValidationProvider
+from masoniteorm.providers.ORMProvider import ORMProvider
 
 """
 |--------------------------------------------------------------------------
@@ -35,11 +37,15 @@ from src.masonite.validation.providers import ValidationProvider
 PROVIDERS = [
     # Framework Providers
     AppProvider,
+    RequestHelpersProvider,
+    CsrfProvider,
+    AuthenticationProvider,
     SessionProvider,
     RouteProvider,
     StatusCodeProvider,
     # WhitenoiseProvider,
     ViewProvider,
+    ORMProvider,
     ValidationProvider,
 
     # Optional Framework Providers
@@ -49,8 +55,6 @@ PROVIDERS = [
     # CacheProvider,
     # BroadcastProvider,
     # CacheProvider,
-    CsrfProvider,
-    AuthenticationProvider,
     # HelpersProvider,
 
     # Third Party Providers
