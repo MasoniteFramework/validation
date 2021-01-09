@@ -1065,22 +1065,18 @@ def parse_table(table_name, column="id"):
 class exists_in_db(BaseValidation):
     def __init__(self, validations, table, column=None, messages={}, raises={}):
         super().__init__(validations, messages=messages, raises=raises)
-        # retrieving db connection will totally change with new ORM
-        # in addition, below is not really satisfying
+        # here Masonite ORM is only needed when using the "databases" validation rules
+        # else package will not complain
         from masonite.helpers import config
-        self.connection = config("database.db")
+        self.connection = config("database.db").get_query_builder()
         self.column = column
         self.table, self.model = parse_table(table)
 
     def passes(self, attribute, key, dictionary):
         column = key if not self.column else self.column
-        import pdb
-        pdb.set_trace()
-        result = self.connection.table(self.table).where(column, attribute).pluck(column)
-        if result:
-            return True
-        else:
-            return False
+        count = self.connection.table(self.table).where(column, attribute).count()
+        import pdb ; pdb.set_trace()
+        return count
 
     def message(self, attribute):
         return "does not exist"
@@ -1088,6 +1084,10 @@ class exists_in_db(BaseValidation):
     def negated_message(self, attribute):
         return "exists"
 
+
+class unique(BaseValidation):
+    # TODO
+    pass
 
 class different(BaseValidation):
     """The field under validation must be different than an other given field."""
