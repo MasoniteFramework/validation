@@ -18,7 +18,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install setuptools wheel twine
         make init
-        make test
+        make test_no_db
     - name: Build and publish
       env:
         TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}

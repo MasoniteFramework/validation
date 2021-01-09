@@ -6,8 +6,10 @@ init:
 	pip install pytest
 test:
 	python -m pytest tests
+test_no_db:
+	python -m pytest tests -m "not db_tests"
 ci:
-	make test
+	make test_no_db
 	make lint
 lint:
 	python -m flake8 src/masonite/validation/ --ignore=E501,F401,E128,E402,E731,F821,E712,W503

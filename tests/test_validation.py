@@ -1077,6 +1077,20 @@ class TestValidation(unittest.TestCase):
         )
         self.assertEqual(len(validate), 0)
 
+    # TODO: this test requires an other connection, so mysql or postgres running
+    # maybe add a pytest tag to disable it on CI, and run it only locally
+    @pytest.mark.db_tests
+    def test_can_override_connection_in_exists_in_db(self):
+        from app.User import User
+        # delete all users for the test first
+        User.where("email", "sam@masonite.com").delete()
+        User.create(name="Sam", email="sam@masonite.com", password="test")
+        # check connection can be overriden
+        validate = Validator().validate(
+            {"first_name": "Sam"}, exists_in_db(["first_name"], "users", "name", "postgres")
+        )
+        self.assertEqual(len(validate), 0)
+
 
     def test_different(self):
         validate = Validator().validate(
