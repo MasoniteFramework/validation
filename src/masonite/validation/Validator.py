@@ -85,18 +85,18 @@ class required(BaseValidation):
     def passes(self, attribute, key, dictionary):
         """The passing criteria for this rule.
 
-        This should return a True boolean value.
+        The key must exist in the dictionary and return a True boolean value.
+        The key can use * notation.
 
         Arguments:
             attribute {mixed} -- The value found within the dictionary
             key {string} -- The key in the dictionary being searched for.
-                            This key may or may not exist in the dictionary.
             dictionary {dict} -- The dictionary being searched
 
         Returns:
             bool
         """
-        return attribute or key in dictionary
+        return self.find(key, dictionary) and attribute
 
     def message(self, key):
         """A message to show when this rule fails
@@ -296,7 +296,7 @@ class is_future(BaseValidation):
 class email(BaseValidation):
     def passes(self, attribute, key, dictionary):
         return re.compile(
-            r"^[^.].+@([?)[a-zA-Z0-9-.])+.([a-zA-Z]{2,3}|[0-9]{1,3})(]?)$"
+            r"^[^.][^@]*@([?)[a-zA-Z0-9-.])+.([a-zA-Z]{2,3}|[0-9]{1,3})(]?)$"
         ).match(attribute)
 
     def message(self, attribute):
@@ -415,7 +415,7 @@ class none(BaseValidation):
 
 
 class length(BaseValidation):
-    def __init__(self, validations, min=1, max=False, messages={}, raises={}):
+    def __init__(self, validations, min=0, max=False, messages={}, raises={}):
         super().__init__(validations, messages=messages, raises=raises)
         if isinstance(min, str) and ".." in min:
             self.min = int(min.split("..")[0])
@@ -427,8 +427,10 @@ class length(BaseValidation):
     def passes(self, attribute, key, dictionary):
         if not hasattr(attribute, "__len__"):
             attribute = str(attribute)
-
-        return len(attribute) >= self.min and len(attribute) <= self.max
+        if self.max:
+            return len(attribute) >= self.min and len(attribute) <= self.max
+        else:
+            return len(attribute) >= self.min
 
     def message(self, attribute):
         if self.min and not self.max:
@@ -454,6 +456,21 @@ class in_range(BaseValidation):
         self.max = max
 
     def passes(self, attribute, key, dictionary):
+
+        attribute = str(attribute)
+
+        if attribute.isalpha():
+            return False
+
+        if "." in attribute:
+            try:
+                attribute = float(attribute)
+            except Exception:
+                pass
+
+        elif attribute.isdigit():
+            attribute = int(attribute)
+
         return attribute >= self.min and attribute <= self.max
 
     def message(self, attribute):
@@ -995,10 +1012,11 @@ class postal_code(BaseValidation):
     def __init__(self, validations, locale, messages={}, raises={}):
         super().__init__(validations, messages=messages, raises=raises)
         from .resources.postal_codes import PATTERNS
+
         self.locales = []
         self.patterns = []
         self.patterns_example = []
-        self.locales = locale.split(',')
+        self.locales = locale.split(",")
 
         for locale in self.locales:
             pattern_dict = PATTERNS.get(locale, None)
@@ -1021,8 +1039,10 @@ class postal_code(BaseValidation):
 
     def message(self, attribute):
         return "The {} is not a valid {} postal code. Valid {} {}.".format(
-            attribute, ','.join(self.locales), "examples are" if len(self.locales) > 1 else "example is",
-            ','.join(self.patterns_example)
+            attribute,
+            ",".join(self.locales),
+            "examples are" if len(self.locales) > 1 else "example is",
+            ",".join(self.patterns_example),
         )
 
     def negated_message(self, attribute):
@@ -1054,7 +1074,7 @@ class exists_in_db(BaseValidation):
 
     def passes(self, attribute, key, dictionary):
         column = key if not self.column else self.column
-        import pdb 
+        import pdb
         pdb.set_trace()
         result = self.connection.table(self.table).where(column, attribute).pluck(column)
         if result:
@@ -1067,6 +1087,134 @@ class exists_in_db(BaseValidation):
 
     def negated_message(self, attribute):
         return "exists"
+
+
+class different(BaseValidation):
+    """The field under validation must be different than an other given field."""
+
+    def __init__(self, validations, other_field, messages={}, raises={}):
+        super().__init__(validations, messages=messages, raises=raises)
+        self.other_field = other_field
+
+    def passes(self, attribute, key, dictionary):
+        other_value = dictionary.get(self.other_field, None)
+        return attribute != other_value
+
+    def message(self, attribute):
+        return "The {} value must be different than {} value.".format(
+            attribute, self.other_field
+        )
+
+    def negated_message(self, attribute):
+        return "The {} value be the same as {} value.".format(
+            attribute, self.other_field
+        )
+
+
+class uuid(BaseValidation):
+    """The field under validation must be a valid UUID. The UUID version standard
+    can be precised (1,3,4,5)."""
+
+    def __init__(self, validations, version=4, messages={}, raises={}):
+        super().__init__(validations, messages=messages, raises=raises)
+        self.version = version
+        self.uuid_type = "UUID"
+        if version:
+            self.uuid_type = "UUID {0}".format(self.version)
+
+    def passes(self, attribute, key, dictionary):
+        from uuid import UUID
+
+        try:
+            uuid_value = UUID(str(attribute))
+            return uuid_value.version == int(self.version)
+        except ValueError:
+            return False
+
+    def message(self, attribute):
+        return "The {} value must be a valid {}.".format(attribute, self.uuid_type)
+
+    def negated_message(self, attribute):
+        return "The {} value must not be a valid {}.".format(attribute, self.uuid_type)
+
+
+class required_if(BaseValidation):
+    """The field under validation must be present and not empty only
+    if an other field has a given value."""
+
+    def __init__(self, validations, other_field, value, messages={}, raises={}):
+        super().__init__(validations, messages=messages, raises=raises)
+        self.other_field = other_field
+        self.value = value
+
+    def passes(self, attribute, key, dictionary):
+        if dictionary.get(self.other_field, None) == self.value:
+            return required.passes(self, attribute, key, dictionary)
+
+        return True
+
+    def message(self, attribute):
+        return "The {} is required because {}={}.".format(
+            attribute, self.other_field, self.value
+        )
+
+    def negated_message(self, attribute):
+        return "The {} is not required because {}={} or {} is not present.".format(
+            attribute, self.other_field, self.value, self.other_field
+        )
+
+
+class required_with(BaseValidation):
+    """The field under validation must be present and not empty only
+    if any of the other specified fields are present."""
+
+    def __init__(self, validations, other_fields, messages={}, raises={}):
+        super().__init__(validations, messages=messages, raises=raises)
+        if not isinstance(other_fields, list):
+            if "," in other_fields:
+                self.other_fields = other_fields.split(",")
+            else:
+                self.other_fields = [other_fields]
+        else:
+            self.other_fields = other_fields
+
+    def passes(self, attribute, key, dictionary):
+        for field in self.other_fields:
+            if field in dictionary:
+                return required.passes(self, attribute, key, dictionary)
+        else:
+            return True
+
+    def message(self, attribute):
+        fields = ",".join(self.other_fields)
+        return "The {} is required because {} is present.".format(
+            attribute,
+            "one in {}".format(fields)
+            if len(self.other_fields) > 1
+            else self.other_fields[0],
+        )
+
+    def negated_message(self, attribute):
+        return "The {} is not required because {} {} is not present.".format(
+            attribute,
+            "none of" if len(self.other_fields) > 1 else "",
+            ",".join(self.other_fields),
+        )
+
+
+class distinct(BaseValidation):
+    """When working with list, the field under validation must not have any
+    duplicate values."""
+
+    def passes(self, attribute, key, dictionary):
+        # check if list contains duplicates
+        return len(set(attribute)) == len(attribute)
+
+    def message(self, attribute):
+        return "The {} field has duplicate values.".format(attribute)
+
+    def negated_message(self, attribute):
+        return "The {} field has only different values.".format(attribute)
 
 
 def flatten(iterable):
@@ -1179,6 +1327,8 @@ class ValidationFactory:
             contains,
             date,
             does_not,
+            different,
+            distinct,
             equals,
             email,
             exists,
@@ -1204,10 +1354,13 @@ class ValidationFactory:
             postal_code,
             regex,
             required,
+            required_if,
+            required_with,
             string,
             strong,
             timezone,
             truthy,
+            uuid,
             video,
             when,
         )

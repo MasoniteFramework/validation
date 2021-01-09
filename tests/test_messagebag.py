@@ -59,10 +59,12 @@ class TestMessageBag(unittest.TestCase):
         self.bag.add("email", "Your email is invalid")
         self.bag.add("email", "Your email too short")
         self.assertIn(
-            "Your email is invalid", self.bag.get("email"),
+            "Your email is invalid",
+            self.bag.get("email"),
         )
         self.assertIn(
-            "Your email too short", self.bag.get("email"),
+            "Your email too short",
+            self.bag.get("email"),
         )
 
     def test_get_errors(self):
@@ -76,11 +78,13 @@ class TestMessageBag(unittest.TestCase):
         self.bag.add("email", "Your email is invalid")
         self.bag.add("username", "Your username too short")
         self.assertIn(
-            "Your email is invalid", self.bag.messages(),
+            "Your email is invalid",
+            self.bag.messages(),
         )
 
         self.assertIn(
-            "Your username too short", self.bag.messages(),
+            "Your username too short",
+            self.bag.messages(),
         )
 
     def test_can_convert_to_json(self):
