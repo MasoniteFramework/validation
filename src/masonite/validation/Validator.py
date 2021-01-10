@@ -827,7 +827,6 @@ class BaseFileValidation(BaseValidation):
         self.all_clear = True
 
     def passes(self, attribute, key, dictionary):
-        import pdb; pdb.set_trace()
         if not self._get_file_if_file(attribute):
             self.file_check = False
             return False
@@ -854,11 +853,10 @@ class BaseFileValidation(BaseValidation):
     def _get_size(self, file):
         if hasattr(file, 'size'):
             return file.size
-        if hasattr(file, 'name'):
-            try:
-                return os.path.getsize(file.name)
-            except (OSError, TypeError):
-                pass
+        try:
+            return os.path.getsize(file)
+        except (OSError, TypeError):
+            pass
         if hasattr(file, 'tell') and hasattr(file, 'seek'):
             pos = file.tell()
             file.seek(0, os.SEEK_END)
