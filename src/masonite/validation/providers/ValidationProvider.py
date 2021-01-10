@@ -19,4 +19,14 @@ class ValidationProvider(ServiceProvider):
     def boot(self, validator: Validator, view: View):
         validator.extend(ValidationFactory().registry)
 
+        MessageBag.get_errors = self._get_errors
+
         view.share({"bag": MessageBag.view_helper})
+
+    def _get_errors(self):
+        request = self.app.make('Request')
+        messages = []
+        for error, message in request.session.get_flashed_messages().get('errors', {}).items():
+            messages += message
+
+        return messages
