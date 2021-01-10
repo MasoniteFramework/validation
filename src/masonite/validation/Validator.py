@@ -1069,7 +1069,6 @@ class exists_in_db(BaseValidation):
         # here Masonite ORM is only needed when using the "database" validation rules
         # else package will not complain
         from masonite.helpers import config
-        # TODO fetch connection if given
         self.connection = config("database.db").get_query_builder(connection)
         self.column = column
         self.table, self.model = resolve_model_or_table(table_or_model)
@@ -1097,7 +1096,6 @@ class unique(BaseValidation):
         # here Masonite ORM is only needed when using the "database" validation rules
         # else package will not complain
         from masonite.helpers import config
-        # TODO fetch connection if given
         self.connection = config("database.db").get_query_builder(connection)
         self.column = column
         self.table, self.model = resolve_model_or_table(table_or_model)

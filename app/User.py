@@ -1,7 +1,8 @@
 """ User Model """
-
-from masoniteorm.models import Model
-
+try:
+    from masoniteorm.models import Model
+except:
+    from config.database import Model
 
 class User(Model):
     """User Model

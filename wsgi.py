@@ -1,9 +1,14 @@
 """ First Entry For The WSGI Server """
+import masonite
+
 class PackageContainer:
 
     def create(self):
         from masonite.app import App
-        from masonite.wsgi import response_handler
+        try:
+            from masonite.wsgi import response_handler
+        except:
+            pass
         from config import providers
 
         """
@@ -17,8 +22,10 @@ class PackageContainer:
         """
 
         container = App()
-
-        container.bind("WSGI", response_handler)
+        try:
+            container.bind("WSGI", response_handler)
+        except:
+            pass
         container.bind('Container', container)
 
         container.bind('Providers', [])
@@ -64,4 +71,5 @@ class PackageContainer:
 
 
 container = PackageContainer().create()
-application = container.make("WSGI")
+if masonite.__version__.startswith('3'):
+    application = container.make("WSGI")
