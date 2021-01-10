@@ -871,6 +871,7 @@ class BaseFileValidation(BaseValidation):
         else:
             return mimetypes.guess_type(file)
 
+
 class file(BaseFileValidation):
     def __init__(self, validations, size=False, mimes=False, messages={}, raises={}):
         super().__init__(validations, messages=messages, raises=raises)
