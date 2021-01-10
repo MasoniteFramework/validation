@@ -819,6 +819,9 @@ def parse_size(size):
 
 
 class BaseFileValidation(BaseValidation):
+    """This is the abstract base file validation class which is able to handle
+    normal file paths and file objects from masonite file upload requests."""
+
     def __init__(self, validations, messages={}, raises={}):
         super().__init__(validations, messages=messages, raises=raises)
         self.file_check = True
@@ -831,13 +834,11 @@ class BaseFileValidation(BaseValidation):
             self.file_check = False
             return False
         if self.size:
-            # file_size = os.path.getsize(attribute)
             file_size = self._get_size(attribute)
             if file_size > self.size:
                 self.size_check = False
                 self.all_clear = False
         if self.allowed_extensions:
-            # mimetype, encoding = mimetypes.guess_type(attribute)
             mimetype, encoding = self._get_mimetype(attribute)
             if mimetype not in self.allowed_mimetypes:
                 self.mimes_check = False
