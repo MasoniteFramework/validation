@@ -7,6 +7,7 @@ import hashlib
 import requests
 import os
 import mimetypes
+import cgi
 
 
 class BaseValidation:
@@ -826,21 +827,51 @@ class BaseFileValidation(BaseValidation):
         self.all_clear = True
 
     def passes(self, attribute, key, dictionary):
-        if not os.path.isfile(attribute):
+        import pdb; pdb.set_trace()
+        if not self._get_file_if_file(attribute):
             self.file_check = False
             return False
         if self.size:
-            file_size = os.path.getsize(attribute)
+            # file_size = os.path.getsize(attribute)
+            file_size = self._get_size(attribute)
             if file_size > self.size:
                 self.size_check = False
                 self.all_clear = False
         if self.allowed_extensions:
-            mimetype, encoding = mimetypes.guess_type(attribute)
+            # mimetype, encoding = mimetypes.guess_type(attribute)
+            mimetype, encoding = self._get_mimetype(attribute)
             if mimetype not in self.allowed_mimetypes:
                 self.mimes_check = False
                 self.all_clear = False
         return self.all_clear
 
+    def _get_file_if_file(self, data):
+        if isinstance(data, cgi.FieldStorage):
+            return True
+        else:
+            return os.path.isfile(data)
+
+    def _get_size(self, file):
+        if hasattr(file, 'size'):
+            return file.size
+        if hasattr(file, 'name'):
+            try:
+                return os.path.getsize(file.name)
+            except (OSError, TypeError):
+                pass
+        if hasattr(file, 'tell') and hasattr(file, 'seek'):
+            pos = file.tell()
+            file.seek(0, os.SEEK_END)
+            size = file.tell()
+            file.seek(pos)
+            return size
+        raise AttributeError("Unable to determine the file's size.")
+
+    def _get_mimetype(self, file):
+        if isinstance(file, cgi.FieldStorage):
+            return file.type, file.encoding
+        else:
+            return mimetypes.guess_type(file)
 
 class file(BaseFileValidation):
     def __init__(self, validations, size=False, mimes=False, messages={}, raises={}):
