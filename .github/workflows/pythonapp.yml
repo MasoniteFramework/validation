@@ -19,6 +19,8 @@ jobs:
       run: |
         make init
     - name: Test with pytest
+      env:
+        - KEY: "V9S1aNsUUS-GY5gDph63koaJ2e8dApqthrDc7PL50xk="
       run: |
         make test
   lint:
