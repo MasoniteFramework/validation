@@ -1085,7 +1085,6 @@ class TestValidation(unittest.TestCase):
         )
         self.assertEqual(len(validate), 0)
 
-    @pytest.mark.db_tests
     @pytest.mark.skipif(not has_orm, reason="requires masonite ORM")
     def test_can_override_connection_in_exists_in_db(self):
         """this test requires an other connection, so mysql or postgres running."""
@@ -1095,7 +1094,7 @@ class TestValidation(unittest.TestCase):
         User.create(name="Sam", email="sam@masonite.com", password="test")
         # check connection can be overriden
         validate = Validator().validate(
-            {"first_name": "Sam"}, exists_in_db(["first_name"], "users", "name", "postgres")
+            {"first_name": "Sam"}, exists_in_db(["first_name"], "users", "name", "sqlite2")
         )
         self.assertEqual(len(validate), 0)
 

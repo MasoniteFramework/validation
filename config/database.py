@@ -58,6 +58,12 @@ DATABASES = {
         "prefix": "",
         "log_queries": True,
     },
+    "sqlite2": {
+        "driver": "sqlite",
+        "database": env("DB_DATABASE"),
+        "prefix": "",
+        "log_queries": True,
+    },
     "mssql": {
         "driver": "mssql",
         "host": env("MSSQL_DATABASE_HOST"),

@@ -20,7 +20,7 @@ jobs:
         make init
     - name: Test with pytest
       run: |
-        make test_no_db
+        make test
   lint:
     runs-on: ubuntu-latest
     name: Lint
