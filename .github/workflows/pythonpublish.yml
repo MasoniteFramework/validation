@@ -14,11 +14,13 @@ jobs:
       with:
         python-version: '3.x'
     - name: Install dependencies
+      env:
+        - KEY: "V9S1aNsUUS-GY5gDph63koaJ2e8dApqthrDc7PL50xk="
       run: |
         python -m pip install --upgrade pip
         pip install setuptools wheel twine
         make init
-        make test_no_db
+        make test
     - name: Build and publish
       env:
         TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
