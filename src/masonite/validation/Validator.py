@@ -1120,7 +1120,7 @@ class exists_in_db(BaseValidation):
         )
 
 
-class unique(BaseValidation):
+class unique_in_db(BaseValidation):
     """No record should exist for the field under validation within the given table/model."""
     def __init__(self, validations, table_or_model, column=None, connection="default", messages={}, raises={}):
         super().__init__(validations, messages=messages, raises=raises)
@@ -1418,7 +1418,7 @@ class ValidationFactory:
             strong,
             timezone,
             truthy,
-            unique,
+            unique_in_db,
             uuid,
             video,
             when,

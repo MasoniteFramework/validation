@@ -43,7 +43,7 @@ from .Validator import (
     strong,
     timezone,
     truthy,
-    unique,
+    unique_in_db,
     uuid,
     video,
     when,

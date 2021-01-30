@@ -41,7 +41,7 @@ from src.masonite.validation import (
     postal_code,
     strong,
     regex,
-    unique,
+    unique_in_db,
     uuid,
     video,
 )
@@ -1116,11 +1116,11 @@ class TestValidation(unittest.TestCase):
         User.create(name="Sam", email="sam@masonite.com", password="test")
 
         validate = Validator().validate(
-            {"email": "sam@masonite.com"}, unique(["email"], "app.User")
+            {"email": "sam@masonite.com"}, unique_in_db(["email"], "app.User")
         )
         self.assertEqual(validate.get("email"), ["A record already exists in table users with the same email."])
         validate = Validator().validate(
-            {"user_email": "john@masonite.com"}, unique(["user_email"], "users", "email")
+            {"user_email": "john@masonite.com"}, unique_in_db(["user_email"], "users", "email")
         )
         self.assertEqual(len(validate), 0)
 
