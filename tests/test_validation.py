@@ -62,11 +62,6 @@ from src.masonite.validation.Validator import (
     truthy,
     when,
 )
-try:
-    import masoniteorm
-    has_orm = True
-except:
-    has_orm = False
 
 
 class TestValidation(unittest.TestCase):
@@ -1050,7 +1045,6 @@ class TestValidation(unittest.TestCase):
 
         self.assertEqual(len(validate), 0)
 
-    @pytest.mark.skipif(not has_orm, reason="requires masonite ORM")
     def test_exists_in_db(self):
         """this test requires masonite 3.X and ORM."""
         from app.User import User
@@ -1085,7 +1079,6 @@ class TestValidation(unittest.TestCase):
         )
         self.assertEqual(len(validate), 0)
 
-    @pytest.mark.skipif(not has_orm, reason="requires masonite ORM")
     def test_can_override_connection_in_exists_in_db(self):
         """this test requires an other connection, so mysql or postgres running."""
         from app.User import User
@@ -1098,7 +1091,6 @@ class TestValidation(unittest.TestCase):
         )
         self.assertEqual(len(validate), 0)
 
-    @pytest.mark.skipif(not has_orm, reason="requires masonite ORM")
     def test_unique_in_db(self):
         """this test requires masonite 3.X and ORM."""
         from app.User import User
@@ -1840,7 +1832,6 @@ class TestDictValidation(unittest.TestCase):
             validate.get("email"),
         )
 
-    @pytest.mark.skipif(not has_orm, reason="requires masonite ORM")
     def test_exists_in_db_with_string_validation(self):
         from app.User import User
         # delete all users for the test first

@@ -9,9 +9,10 @@ setup(
     ],
     package_dir = {'': 'src'},
     include_package_data=True,
-    version='3.0.12',
+    version='4.0.0',
     install_requires=[
         'masonite-dot>=0.0.5',
+        'masonite>=3.0',
         'hfilesize==0.1.0'
     ],
     description="Validation Package",

@@ -1,6 +1,7 @@
 """ Database Settings """
 
 from masonite.environment import LoadEnvironment, env
+from masoniteorm.connections import ConnectionResolver
 
 
 """
@@ -76,10 +77,4 @@ DATABASES = {
     },
 }
 
-try:
-    from masoniteorm.connections import ConnectionResolver
-    DB = ConnectionResolver().set_connection_details(DATABASES)
-except:
-    from orator import DatabaseManager, Model
-    DB = DatabaseManager(DATABASES)
-    Model.set_connection_resolver(DB)
+DB = ConnectionResolver().set_connection_details(DATABASES)

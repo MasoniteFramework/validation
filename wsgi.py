@@ -5,10 +5,7 @@ class PackageContainer:
 
     def create(self):
         from masonite.app import App
-        try:
-            from masonite.wsgi import response_handler
-        except:
-            pass
+        from masonite.wsgi import response_handler
         from config import providers
 
         """
@@ -22,10 +19,7 @@ class PackageContainer:
         """
 
         container = App()
-        try:
-            container.bind("WSGI", response_handler)
-        except:
-            pass
+        container.bind("WSGI", response_handler)
         container.bind('Container', container)
 
         container.bind('Providers', [])
@@ -71,5 +65,4 @@ class PackageContainer:
 
 
 container = PackageContainer().create()
-if masonite.__version__.startswith('3'):
-    application = container.make("WSGI")
+application = container.make("WSGI")

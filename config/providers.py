@@ -16,12 +16,8 @@ from masonite.providers import (
     CacheProvider,
     CsrfProvider,
 )
-try:
-    from masonite.providers import RequestHelpersProvider
-    from masoniteorm.providers.ORMProvider import ORMProvider
-    has_orm = True
-except:
-    has_orm = False
+from masonite.providers import RequestHelpersProvider
+from masoniteorm.providers.ORMProvider import ORMProvider
 
 from src.masonite.validation.providers import ValidationProvider
 
@@ -41,12 +37,14 @@ from src.masonite.validation.providers import ValidationProvider
 PROVIDERS = [
     # Framework Providers
     AppProvider,
+    RequestHelpersProvider,
     CsrfProvider,
     AuthenticationProvider,
     SessionProvider,
     RouteProvider,
     StatusCodeProvider,
     # WhitenoiseProvider,
+    ORMProvider,
     ViewProvider,
     ValidationProvider,
 
@@ -64,7 +62,3 @@ PROVIDERS = [
     # Application Providers
 
 ]
-
-if has_orm:
-    PROVIDERS.insert(1, RequestHelpersProvider)
-    PROVIDERS.insert(len(PROVIDERS)-2, ORMProvider)
