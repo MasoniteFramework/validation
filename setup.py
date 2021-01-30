@@ -15,6 +15,7 @@ setup(
         'masonite>=3.0',
         'hfilesize==0.1.0'
     ],
+    python_requires=">=3.6",
     description="Validation Package",
     author="Joseph Mancuso",
     author_email='joe@masoniteproject.com',
