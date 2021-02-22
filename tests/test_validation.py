@@ -424,6 +424,10 @@ class TestValidation(unittest.TestCase):
 
         self.assertEqual(len(validate), 0)
 
+        validate = Validator().validate({"test": 1.1}, numeric(["test"]))
+
+        self.assertEqual(len(validate), 0)
+
         validate = Validator().validate({"test": "hey"}, numeric(["test"]))
 
         self.assertEqual(validate.all(), {"test": ["The test must be a numeric."]})
@@ -852,7 +856,7 @@ class TestValidation(unittest.TestCase):
         self.assertEqual(len(validate), 0)
 
     def test_different_file_objects(self):
-        """Test that validator can handle different Python file objects. For 
+        """Test that validator can handle different Python file objects. For
         example the one returned in Masonite requests.
         """
         # prepare a FieldStorage instance to simulate file from POST requests
@@ -1590,7 +1594,7 @@ class TestValidationProvider(TestCase):
         request.request_variables = {"image": fileitem}
         validated = request.validate(validate.file(["image"]))
         self.assertEqual(len(validated), 0)
-        
+
     def test_request_validation_redirects_back_with_session(self):
         wsgi = generate_wsgi()
         self.app.bind("Application", self.app)
