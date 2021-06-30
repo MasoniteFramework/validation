@@ -1,10 +1,9 @@
 """The Message Bag Module"""
 
 import json
-from masonite.response import Responsable
 
 
-class MessageBag(Responsable):
+class MessageBag:
     def __init__(self, items={}):
         self.items = items
 
