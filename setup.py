@@ -9,7 +9,7 @@ setup(
     ],
     package_dir = {'': 'src'},
     include_package_data=True,
-    version='3.0.11',
+    version='4.0b1',
     install_requires=[
         'masonite-dot>=0.0.5',
         'hfilesize==0.1.0'
@@ -25,7 +25,7 @@ setup(
         #   3 - Alpha
         #   4 - Beta
         #   5 - Production/Stable
-        'Development Status :: 5 - Production/Stable',
+        'Development Status :: 4 - Beta',
 
         # Indicate who your project is intended for
         'Intended Audience :: Developers',
