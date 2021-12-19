@@ -3,6 +3,14 @@ from masonite.routes import Get
 
 
 class TestDecorators(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        pass
+
+    @classmethod
+    def tearDownClass(cls):
+        pass
+
     def setUp(self):
         super().setUp()
         self.routes(

@@ -1549,6 +1549,14 @@ class TestValidationFactory(unittest.TestCase):
 
 
 class TestValidationProvider(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        pass
+
+    @classmethod
+    def tearDownClass(cls):
+        pass
+
     def setUp(self):
         super().setUp()
         self.app = self.container
