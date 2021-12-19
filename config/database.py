@@ -1,8 +1,7 @@
 """Database Settings """
-from src.masonite import env
-from masoniteorm.query import QueryBuilder
+from masonite import env
 from masoniteorm.connections import ConnectionResolver
-from src.masonite.environment import LoadEnvironment
+from masonite.environment import LoadEnvironment
 
 
 LoadEnvironment()
