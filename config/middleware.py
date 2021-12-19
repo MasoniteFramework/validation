@@ -19,7 +19,6 @@ from app.http.middleware.LoadUserMiddleware import LoadUserMiddleware
 
 HTTP_MIDDLEWARE = [
     LoadUserMiddleware,
-    CsrfMiddleware,
     ResponseMiddleware
 ]
 
